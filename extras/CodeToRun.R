@@ -111,13 +111,15 @@ connectionDetails <- DatabaseConnector::createConnectionDetails(dbms = dbms,
                                                                 server = server,
                                                                 user = user,
                                                                 password = password,
-                                                                connectionString = connectionString)
+                                                                # connectionString = connectionString,
+                                                                pathToDriver = Sys.getenv("DATABASECONNECTOR_JAR_FOLDER"))
 
 results<-cdmInspection(connectionDetails,
                 cdmDatabaseSchema = cdmDatabaseSchema,
                 resultsDatabaseSchema = resultsDatabaseSchema,
                 vocabDatabaseSchema = vocabDatabaseSchema,
                 oracleTempSchema = oracleTempSchema,
+                databaseId = databaseId,
                 databaseName = databaseName,
                 runVocabularyChecks = TRUE,
                 runDataTablesChecks = TRUE,
@@ -127,7 +129,8 @@ results<-cdmInspection(connectionDetails,
                 baseUrl = baseUrl,
                 sqlOnly = FALSE,
                 outputFolder = outputFolder,
-                verboseMode = verboseMode)
+                verboseMode = verboseMode,
+                Language = documentLanguage)
 
 generateResultsDocument(results,outputFolder, authors=authors, databaseDescription = databaseDescription, databaseName = databaseName, databaseId = databaseId, smallCellCount = smallCellCount)
-
+generateResultDocumentKor(results,outputFolder, authors=authors, databaseDescription = databaseDescription, databaseName = databaseName, databaseId = databaseId, smallCellCount = smallCellCount)

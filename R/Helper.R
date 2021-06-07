@@ -122,6 +122,33 @@ my_mapped_section <- function(x, data, table_number, domain, smallCellCount) {
   my_source_value_count_section(x, data, table_number, domain, "mapped", smallCellCount)
 }
 
+my_source_value_count_section_kor <- function (x, data, table_number, domain, kind,smallCellCount) {
+  n <- nrow(data$result)
+
+  msg <- paste0("해당 수는 가장 가까운 백의 자리로 반올림됩니다. ", smallCellCount," 개 이하의 값은 생략됩니다.")
+  if (n == 0) {
+    officer::body_add_par(x,paste0("표 ", table_number, " 는", kind, " ", domain, " 이 발견되지 않아 생략되었습니다."))
+  } else if (n < 25) {
+    officer::body_add_par(x,paste0("표 ", table_number, ". 총 ", n, " 개의 ", kind, " ", domain, "이 발견되었습니다. ", msg))
+  } else {
+    officer::body_add_par(x,paste0("표 ", table_number, ". 상위 25위 이내의 ", kind, " ", domain, " 개념. ", msg))
+  }
+
+  if (n>0) {
+    my_body_add_table(x, value = data$result, style = "EHDEN")
+  }
+
+  officer::body_add_par(x, paste0("해당 쿼리는 ", sprintf("%.2f", data$duration), "초 동안 수행되었습니다."))
+}
+
+my_unmapped_section_kor <- function(x, data, table_number, domain, smallCellCount) {
+  my_source_value_count_section_kor(x, data, table_number, domain, "매핑 되지 않은", smallCellCount)
+}
+
+my_mapped_section_kor <- function(x, data, table_number, domain, smallCellCount) {
+  my_source_value_count_section_kor(x, data, table_number, domain, "매핑된", smallCellCount)
+}
+
 
 recordsCountPlot <- function(results){
   temp <- results %>%
