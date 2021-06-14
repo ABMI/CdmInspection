@@ -66,7 +66,9 @@ createCohorts <- function(connection,
   # Instantiate cohorts:
   pathToCsv <- system.file("settings", "CohortsToCreate.csv", package = "CdmInspection")
   cohortsToCreate <- read.csv(pathToCsv)
+  duration <- data.frame(cohortName = cohortsToCreate$name, executionTime = NA)
   for (i in 1:nrow(cohortsToCreate)) {
+    start_time <- Sys.time()
     writeLines(paste("Creating cohort:", cohortsToCreate$name[i]))
     sql <- SqlRender::loadRenderTranslateSql(sqlFilename = paste0(cohortsToCreate$name[i], ".sql"),
                                              packageName = "CdmInspection",
@@ -79,6 +81,7 @@ createCohorts <- function(connection,
                                              target_cohort_table = cohortTable,
                                              target_cohort_id = cohortsToCreate$cohortId[i])
     DatabaseConnector::executeSql(conn, sql)
+    duration$executionTime[i] <- as.numeric(difftime(Sys.time(),start_time), units="secs")
   }
 
   # Fetch cohort counts:
@@ -89,8 +92,11 @@ createCohorts <- function(connection,
   sql <- SqlRender::translate(sql, targetDialect = attr(conn, "dbms"))
   counts <- DatabaseConnector::querySql(conn, sql)
   names(counts) <- SqlRender::snakeCaseToCamelCase(names(counts))
-  counts <- merge(counts, data.frame(cohortDefinitionId = cohortsToCreate$cohortId,
-                                     cohortName  = cohortsToCreate$name))
+  counts <- merge(data.frame(cohortDefinitionId = cohortsToCreate$cohortId,
+                                     cohortName  = cohortsToCreate$name), counts, all.x = T)
+  counts <- merge(counts, duration, by = "cohortName", all.x = T)
+
+  counts <- counts %>% select(cohortDefinitionId, cohortName, count, executionTime) %>% arrange(cohortDefinitionId)
   return(counts)
 }
 

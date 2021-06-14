@@ -95,6 +95,9 @@ cdmDatabaseSchema <- "<your_cdm_schema>"
 resultsDatabaseSchema <- "<your_results_schema>" #Make sure the Achilles results are in this schema!
 vocabDatabaseSchema <- "<your_vocab_schema>"
 
+cohortDatabaseSchema <- "<your_cohort_schema>"
+cohortTable <- "CdmInspectionCohort"
+
 # Url to check the version of your local Atlas
 baseUrl <- "<your_baseUrl>" # example: "http://atlas-demo.ohdsi.org/WebAPI"
 
