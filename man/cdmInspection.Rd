@@ -7,6 +7,8 @@
 cdmInspection(
   connectionDetails,
   cdmDatabaseSchema,
+  cohortDatabaseSchema = cohortDatabaseSchema,
+  cohortTable = cohortTable,
   resultsDatabaseSchema = cdmDatabaseSchema,
   scratchDatabaseSchema = resultsDatabaseSchema,
   vocabDatabaseSchema = cdmDatabaseSchema,
@@ -19,6 +21,7 @@ cdmInspection(
   runVocabularyChecks = TRUE,
   runDataTablesChecks = TRUE,
   runPerformanceChecks = TRUE,
+  createCohorts = TRUE,
   runWebAPIChecks = TRUE,
   baseUrl,
   sqlOnly = FALSE,
@@ -31,6 +34,10 @@ cdmInspection(
 
 \item{cdmDatabaseSchema}{Fully qualified name of database schema that contains OMOP CDM schema.
 On SQL Server, this should specifiy both the database and the schema, so for example, on SQL Server, 'cdm_instance.dbo'.}
+
+\item{cohortDatabaseSchema}{Fully qualified name of database schema that contains cohort tables.}
+
+\item{cohortTable}{Cohort table that contains extracted cohorts from your CDM database.}
 
 \item{resultsDatabaseSchema}{Fully qualified name of database schema that we can write final results to. Default is cdmDatabaseSchema.
 On SQL Server, this should specifiy both the database and the schema, so for example, on SQL Server, 'cdm_results.dbo'.}
@@ -57,6 +64,8 @@ On SQL Server, this should specifiy both the database and the schema, so for exa
 \item{runDataTablesChecks}{Boolean to determine if table checks need to be run. Default = TRUE}
 
 \item{runPerformanceChecks}{Boolean to determine if performance checks need to be run. Default = TRUE}
+
+\item{createCohorts}{Create cohorts}
 
 \item{runWebAPIChecks}{Boolean to determine if WebAPI checks need to be run. Default = TRUE}
 

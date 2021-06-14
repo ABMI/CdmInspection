@@ -31,12 +31,14 @@
 #' @param connectionDetails                An R object of type \code{connectionDetails} created using the function \code{createConnectionDetails} in the \code{DatabaseConnector} package.
 #' @param cdmDatabaseSchema    	           Fully qualified name of database schema that contains OMOP CDM schema.
 #'                                         On SQL Server, this should specifiy both the database and the schema, so for example, on SQL Server, 'cdm_instance.dbo'.
+#' @param cohortDatabaseSchema             Fully qualified name of database schema that contains cohort tables.
 #' @param resultsDatabaseSchema		         Fully qualified name of database schema that we can write final results to. Default is cdmDatabaseSchema.
 #'                                         On SQL Server, this should specifiy both the database and the schema, so for example, on SQL Server, 'cdm_results.dbo'.
 #' @param scratchDatabaseSchema            Fully qualified name of database schema that we can write temporary tables to. Default is resultsDatabaseSchema.
 #'                                         On SQL Server, this should specifiy both the database and the schema, so for example, on SQL Server, 'cdm_scratch.dbo'.
 #' @param vocabDatabaseSchema		           String name of database schema that contains OMOP Vocabulary. Default is cdmDatabaseSchema. On SQL Server, this should specifiy both the database and the schema, so for example 'results.dbo'.
 #' @param oracleTempSchema                 For Oracle only: the name of the database schema where you want all temporary tables to be managed. Requires create/insert permissions to this database.
+#' @param cohortTable                      Cohort table that contains extracted cohorts from your CDM database.
 #' @param databaseId                       ID of your database, this will be used as subfolder for the results.
 #' @param databaseName		                 String name of the database name. If blank, CDM_SOURCE table will be queried to try to obtain this.
 #' @param databaseDescription              Provide a short description of the database.
@@ -47,30 +49,34 @@
 #' @param runWebAPIChecks                  Boolean to determine if WebAPI checks need to be run. Default = TRUE
 #' @param baseUrl                          WebAPI url, example: http://server.org:80/WebAPI
 #' @param runPerformanceChecks             Boolean to determine if performance checks need to be run. Default = TRUE
+#' @param createCohorts                    Create cohorts
 #' @param sqlOnly                          Boolean to determine if Achilles should be fully executed. TRUE = just generate SQL files, don't actually run, FALSE = run Achilles
 #' @param outputFolder                     Path to store logs and SQL files
 #' @param verboseMode                      Boolean to determine if the console will show all execution steps. Default = TRUE
 #' @return                                 An object of type \code{achillesResults} containing details for connecting to the database containing the results
 #' @export
 cdmInspection <- function (connectionDetails,
-                             cdmDatabaseSchema,
-                             resultsDatabaseSchema = cdmDatabaseSchema,
-                             scratchDatabaseSchema = resultsDatabaseSchema,
-                             vocabDatabaseSchema = cdmDatabaseSchema,
-                             oracleTempSchema = resultsDatabaseSchema,
-                             databaseName = "",
-                             databaseId = "",
-                             databaseDescription = "",
-                             analysisIds = "",
-                             smallCellCount = 5,
-                             runVocabularyChecks = TRUE,
-                             runDataTablesChecks = TRUE,
-                             runPerformanceChecks = TRUE,
-                             runWebAPIChecks = TRUE,
-                             baseUrl,
-                             sqlOnly = FALSE,
-                             outputFolder = "output",
-                             verboseMode = TRUE) {
+                           cdmDatabaseSchema,
+                           cohortDatabaseSchema = cohortDatabaseSchema,
+                           cohortTable = cohortTable,
+                           resultsDatabaseSchema = cdmDatabaseSchema,
+                           scratchDatabaseSchema = resultsDatabaseSchema,
+                           vocabDatabaseSchema = cdmDatabaseSchema,
+                           oracleTempSchema = resultsDatabaseSchema,
+                           databaseName = "",
+                           databaseId = "",
+                           databaseDescription = "",
+                           analysisIds = "",
+                           smallCellCount = 5,
+                           runVocabularyChecks = TRUE,
+                           runDataTablesChecks = TRUE,
+                           runPerformanceChecks = TRUE,
+                           createCohorts = TRUE,
+                           runWebAPIChecks = TRUE,
+                           baseUrl,
+                           sqlOnly = FALSE,
+                           outputFolder = "output",
+                           verboseMode = TRUE) {
 
 
   # Log execution -----------------------------------------------------------------------------------------------------------------
@@ -126,10 +132,10 @@ cdmInspection <- function (connectionDetails,
     if (runDataTablesChecks) {
       ParallelLogger::logInfo(paste0("Running Data Table Checks"))
       dataTablesResults <- dataTablesChecks(connectionDetails = connectionDetails,
-                                    cdmDatabaseSchema = cdmDatabaseSchema,
-                                    resultsDatabaseSchema = resultsDatabaseSchema,
-                                    outputFolder = outputFolder,
-                                    sqlOnly = sqlOnly)
+                                            cdmDatabaseSchema = cdmDatabaseSchema,
+                                            resultsDatabaseSchema = resultsDatabaseSchema,
+                                            outputFolder = outputFolder,
+                                            sqlOnly = sqlOnly)
       cdmSource<- .getCdmSource(connectionDetails, cdmDatabaseSchema,sqlOnly,outputFolder)
       temp <- cdmSource
       temp$CDM_RELEASE_DATE <- as.character(cdmSource$CDM_RELEASE_DATE)
@@ -142,13 +148,13 @@ cdmInspection <- function (connectionDetails,
     if (runVocabularyChecks) {
       ParallelLogger::logInfo(paste0("Running Vocabulary Checks"))
       vocabularyResults<-vocabularyChecks(connectionDetails = connectionDetails,
-                       cdmDatabaseSchema = cdmDatabaseSchema,
-                       vocabDatabaseSchema = vocabDatabaseSchema,
-                       resultsDatabaseSchema = resultsDatabaseSchema,
-                       smallCellCount = smallCellCount,
-                       oracleTempSchema = oracleTempSchema,
-                       sqlOnly = sqlOnly,
-                       outputFolder = outputFolder)
+                                          cdmDatabaseSchema = cdmDatabaseSchema,
+                                          vocabDatabaseSchema = vocabDatabaseSchema,
+                                          resultsDatabaseSchema = resultsDatabaseSchema,
+                                          smallCellCount = smallCellCount,
+                                          oracleTempSchema = oracleTempSchema,
+                                          sqlOnly = sqlOnly,
+                                          outputFolder = outputFolder)
     }
     packinfo <- NULL
     sys_details <- NULL
@@ -175,18 +181,28 @@ cdmInspection <- function (connectionDetails,
 
       sys_details <- benchmarkme::get_sys_details(sys_info=FALSE)
       ParallelLogger::logInfo(paste0("Running Performance Checks on ", sys_details$cpu$model_name, " cpu with ", sys_details$cpu$no_of_cores, " cores, and ", prettyunits::pretty_bytes(as.numeric(sys_details$ram)), " ram."))
-     # benchmark <- benchmark_std()
+      # benchmark <- benchmark_std()
 
       ParallelLogger::logInfo(paste0("Running Performance Checks SQL"))
       performanceResults <- performanceChecks(connectionDetails = connectionDetails,
-                        cdmDatabaseSchema = cdmDatabaseSchema,
-                        resultsDatabaseSchema = resultsDatabaseSchema,
-                        oracleTempSchema = oracleTempSchema,
-                        sqlOnly = sqlOnly,
-                        outputFolder = outputFolder)
+                                              cdmDatabaseSchema = cdmDatabaseSchema,
+                                              resultsDatabaseSchema = resultsDatabaseSchema,
+                                              oracleTempSchema = oracleTempSchema,
+                                              sqlOnly = sqlOnly,
+                                              outputFolder = outputFolder)
 
 
 
+    }
+
+    if (createCohorts) {
+      ParallelLogger::logInfo(paste0("Creating Cohorts"))
+      cohortCounts <-  createCohorts(connection = connectionDetails,
+                                     cdmDatabaseSchema = cdmDatabaseSchema,
+                                     cohortDatabaseSchema = cohortDatabaseSchema,
+                                     cohortTable = cohortTable,
+                                     oracleTempSchema = oracleTempSchema,
+                                     outputFolder = outputFolder)
     }
 
     webAPIversion <- "unknown"
@@ -197,9 +213,9 @@ cdmInspection <- function (connectionDetails,
         webAPIversion <- ROhdsiWebApi::getWebApiVersion(baseUrl = baseUrl)
         ParallelLogger::logInfo(sprintf("> Connected successfully to %s", baseUrl))
         ParallelLogger::logInfo(sprintf("> WebAPI version: %s", webAPIversion))},
-               error = function (e) {
-                 ParallelLogger::logError(paste0("Could not connect to the WebAPI: ", baseUrl))
-                 webAPIversion <- "Failed"
+        error = function (e) {
+          ParallelLogger::logError(paste0("Could not connect to the WebAPI: ", baseUrl))
+          webAPIversion <- "Failed"
         })
     }
 
@@ -221,6 +237,7 @@ cdmInspection <- function (connectionDetails,
                   hadesPackageVersions = hadesPackageVersions,
                   missingPackages = missingPackages,
                   performanceResults = performanceResults,
+                  cohortCounts = cohortCounts,
                   sys_details= sys_details,
                   webAPIversion = webAPIversion,
                   cdmSource = cdmSource,
@@ -243,7 +260,7 @@ cdmInspection <- function (connectionDetails,
 }
 
 .getDatabaseName <- function(connectionDetails,
-                           cdmDatabaseSchema) {
+                             cdmDatabaseSchema) {
   sql <- SqlRender::render(sql = "select cdm_source_name from @cdmDatabaseSchema.cdm_source",
                            cdmDatabaseSchema = cdmDatabaseSchema)
   sql <- SqlRender::translate(sql = sql, targetDialect = connectionDetails$dbms)
@@ -280,7 +297,7 @@ cdmInspection <- function (connectionDetails,
 }
 
 .getCdmSource <- function(connectionDetails,
-                           cdmDatabaseSchema,sqlOnly,outputFolder) {
+                          cdmDatabaseSchema,sqlOnly,outputFolder) {
   sql <- SqlRender::loadRenderTranslateSql(sqlFilename = file.path("checks","get_cdm_source_table.sql"),
                                            packageName = "CdmInspection",
                                            dbms = connectionDetails$dbms,
