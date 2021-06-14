@@ -22,7 +22,8 @@ Depends:     R (>= 3.5.0),
     DatabaseConnector (>= 3.0.0),
     ROhdsiWebApi (>= 1.1.2),
     ParallelLogger,
-    SqlRender
+    SqlRender, 
+    renv
 Imports: parallel,
     benchmarkme,
     prettyunits,
