@@ -85,18 +85,19 @@ createCohorts <- function(connection,
   }
 
   # Fetch cohort counts:
-  sql <- "SELECT cohort_definition_id, COUNT(*) AS count FROM @cohort_database_schema.@cohort_table GROUP BY cohort_definition_id"
+  sql <- "SELECT cohort_definition_id as cohortDefinitionId, COUNT(*) AS recordCount, count(distinct subject_id) AS personCount, (select count(person_id) from @cdm_database_schema.person) as totalPersonCount, round(100*convert(float, count(distinct subject_id))/(select count(person_id) from @cdm_database_schema.person),2) AS personProportion FROM @cohort_database_schema.@cohort_table GROUP BY cohort_definition_id"
   sql <- SqlRender::render(sql,
                            cohort_database_schema = cohortDatabaseSchema,
+                           cdm_database_schema = cdmDatabaseSchema,
                            cohort_table = cohortTable)
   sql <- SqlRender::translate(sql, targetDialect = attr(conn, "dbms"))
   counts <- DatabaseConnector::querySql(conn, sql)
-  names(counts) <- SqlRender::snakeCaseToCamelCase(names(counts))
+  names(counts) <- c("cohortDefinitionId", "recordCount", "personCount", "totalPersonCount", "personProportion")
   counts <- merge(data.frame(cohortDefinitionId = cohortsToCreate$cohortId,
                                      cohortName  = cohortsToCreate$name), counts, all.x = T)
   counts <- merge(counts, duration, by = "cohortName", all.x = T)
 
-  counts <- counts %>% select(cohortDefinitionId, cohortName, count, executionTime) %>% arrange(cohortDefinitionId)
+  counts <- counts %>% select(cohortDefinitionId, cohortName, recordCount, personCount, totalPersonCount, personProportion, executionTime) %>% arrange(cohortDefinitionId)
   return(counts)
 }
 
