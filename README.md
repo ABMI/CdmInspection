@@ -1,38 +1,35 @@
 # CdmInspection
-R Package to support quality control inspection of an OMOP-CDM instance
+OMOP-CDM 품질 관리 및 검사 지원 R 패키지
 
-# Introduction
-The European Health Data and Evidence Network (EHDEN) project has multiple yearly Open Calls for financial support for data partners to map their data to the OMOP-CDM, for more information see the [EHDEN](https://www.ehden.eu/open-calls/process-overview/) website. In addition, EHDEN is training Small and Medium-sized Enterprises in Europe to provide services to the data partners to map their data to the OMOP-CDM. A large number of these SMEs are now active all over Europe as shown in the [SME Catalogue](https://www.ehden.eu/business-directory/). 
+# 개요
 
-Quality control of the mapping is clearly important and therefore a procedure has been developed called SME Inspection in which a certified SME performs a series of tests on the CDM and produces a report that is send to the EHDEN Team for review. The goal of the inspection report is to provide insight into the completeness, transparency and quality of the performed Extraction Transform, and Load (ETL) process and the readiness of the data partner to be onboarded in the EHDEN and OHDSI data networks and participate in research studies. If the SME that is performing the inspection was not involved in the ETL implementation we advise to use a two-stage inspection process. A first inspection report can be made to provide recommendations to the Data Partner on how to improve the ETL and processes, if necessary. Ideally, this includes a site visit of the SME after providing instructions on the content of the report. The Data Partner can share this draft report with EHDEN to obtain additional input. Once the improvements have been made the final report can be created by the SME and send to EHDEN for approval.  
+검사 보고서의 목표는 수행 된 추출 변환 및로드 (ETL) 프로세스의 완전성, 투명성 및 품질에 대한 통찰력을 제공하고 EHDEN 및 OHDSI 데이터 네트워크에 온 보딩하고 연구에 참여할 데이터 파트너의 준비 상태를 제공하는 것입니다. 
 
-An example of an inspection report for the Synpuf database can be found here: [link](https://github.com/EHDEN/CdmInspection/blob/master/extras/SYNPUF-results.docx).
 
-The CdmInspection R Package is part of this SME Inspection procedure and performs the following checks on top of the required [Data Quality Dashboard](https://github.com/OHDSI/DataQualityDashboard) step:
+# 특징
 
-# Features
+**추출/변환/적재**  
+1. 데이터 테이블 내 레코드수 
+2. 환자 당 고유 개념 수 
+3. Achilles Heel 결과
+4. 데이터 밀도 그림
 
-**Vocabulary Checks**  
-1. For all custom mapped vocabularies extract the top 50 codes order by frequency from the source_to_concept map. The SME has to approve these top 50 codes. All custom mappings will be extracted as well as part of the package output. Note if the source_to_concept map is not used in the ETL process this information still has to be provided manually for the inspection.
-2. For each domain generate statistics on the number of unmapped codes and and unmapped records.
-3. For each domain extract the top 25 mapped and unmapped codes (counts are round up to the nearest 100).
-3. Extract the vocabulary table.
-4. Extract the number of rows in all vocabulary tables
-4. Count of concepts per vocabulary by standard, classification and non-standard.
-5. Mapping levels of drugs (Clinical Drug etc.)
-6. Extracts the source_to_concept map
+**용어 매핑**
+1. OMOP 용어 버전
+2. 테이블별 레코드 수
+3. 용어 매핑의 완전성
+4. 약물 매핑
 
-**Technical Infrastructure Checks**
-1. Execution of short and longer running queries to test the performance of the system. This information is useful for the SME to provide further guidance on optimizing the infrastructure.
-2. Extract the timings of the Achilles queries (Achilles results need to be present in the database)
-3. Checks on the number of CPUs, memory available in R.
-4. Extract the versions of all installed R packages, checks if core [HADES](https://ohdsi.github.io/Hades/) packages are installed.
-5. Check if ATLAS is installed and WebAPI is running
-6. Extraction of CDM_Source table
+**기술 인프라**
+1. OHDSI HADES 패키지 설치 여부
+2. 시스템 정보
 
-**Results Document Generation**
+**연구 활용 가능성**
+1. 샘플 코호트 생성
 
-Produces a word document in the EHDEN template that contains all the results. This template needs to be completed by the person performing the cdm inspection. 
+**결과 보고서 생성**
+
+모든 결과를 포함하는 FEEDER-NET 템플릿 워드 문서를 생성합니다. 이 템플릿은 cdm 검사를 수행하는 사람이 작성해야합니다. 
 
 Technology
 ==========
@@ -56,7 +53,7 @@ Installation
 3. In R, use the following commands to download and install CdmInspection:
 
 ```r
-  remotes::install_github("EHDEN/CdmInspection")
+  remotes::install_github("ABMI/CdmInspection", ref = "translate-kor")
 ```
 
 User Documentation
@@ -93,6 +90,3 @@ CdmInspection is being developed in R Studio.
 
 Stable Release
 
-## Acknowledgements
-- The European Health Data & Evidence Network has received funding from the Innovative Medicines Initiative 2 Joint Undertaking (JU) under grant agreement No 806968. The JU receives support from the European Union’s Horizon 2020 research 
-- We like to thank the [contributors](https://github.com/OHDSI/Achilles/graphs/contributors) of the OHDSI community for their fantastic work
