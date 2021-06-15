@@ -57,6 +57,11 @@ vocabularyChecks <- function (connectionDetails,
   mappingCompleteness <- executeQuery(outputFolder,"mapping_completeness.sql", "Mapping Completeness query executed successfully", connectionDetails, sqlOnly, cdmDatabaseSchema, vocabDatabaseSchema)
   colnames(mappingCompleteness$result) <- c("Domain","#Codes Source","#Codes Mapped","%Codes Mapped","#Records Source","#Records Mapped","%Records Mapped")
 
+  mappingStandard <- executeQuery(outputFolder,"mapping_standard.sql", "Standard mapping counting query executed successfully", connectionDetails, sqlOnly, cdmDatabaseSchema, vocabDatabaseSchema)
+  mappingStandard$result <- reshape2::dcast(mappingStandard$result, DOMAIN ~ STANDARD_CONCEPT, val.value="CNT")
+  colnames(mappingStandard$result) <- c("DOMAIN", "NS", "C", "S")
+  mappingStandard$result <- mappingStandard$result[,c(1,4,3,2)]
+
   drugMapping  <- executeQuery(outputFolder,"mapping_levels_drugs.sql", "Drug Level Mapping query executed successfully", connectionDetails, sqlOnly,  cdmDatabaseSchema, vocabDatabaseSchema)
   unmappedDrugs<- executeQuery(outputFolder,"unmapped_drugs.sql", "Unmapped drugs query executed successfully", connectionDetails, sqlOnly, cdmDatabaseSchema, vocabDatabaseSchema, smallCellCount)
   unmappedConditions<- executeQuery(outputFolder,"unmapped_conditions.sql", "Unmapped conditions query executed successfully", connectionDetails, sqlOnly, cdmDatabaseSchema, vocabDatabaseSchema, smallCellCount)
@@ -77,8 +82,13 @@ vocabularyChecks <- function (connectionDetails,
 
   version <- conceptCounts$result[conceptCounts$result$ID=='None',]$VERSION
 
+
+
+
+
   results <- list(version=version,
                   mappingCompleteness=mappingCompleteness,
+                  mappingStandard=mappingStandard,
                   drugMapping=drugMapping,
                   unmappedDrugs=unmappedDrugs,
                   unmappedConditions=unmappedConditions,
