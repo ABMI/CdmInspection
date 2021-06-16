@@ -18,12 +18,12 @@
 # Below is an example .Renviron file's contents: (please remove)
 # the "#" below as these too are interprted as comments in the .Renviron file:
 #
-   DBMS = "postgresql"
-   DB_SERVER = "database.server.com"
-   DB_PORT = 5432
-   DB_USER = "database_user_name_goes_here"
-   DB_PASSWORD = "your_secret_password"
-   FFTEMP_DIR = "E:/fftemp"
+# DBMS = "postgresql"
+# DB_SERVER = "database.server.com"
+# DB_PORT = 5432
+# DB_USER = "database_user_name_goes_here"
+# DB_PASSWORD = "your_secret_password"
+# FFTEMP_DIR = "E:/fftemp"
 #
 # The following describes the settings
 #    DBMS, DB_SERVER, DB_PORT, DB_USER, DB_PASSWORD := These are the details used to connect
