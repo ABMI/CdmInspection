@@ -58,7 +58,7 @@ generateResultsDocumentKor<- function(results, outputFolder, docTemplate="EHDEN"
   preample <- data.frame(items,answers)
   colnames(preample) <- c("항목", "내용")
   ft <- flextable::qflextable(preample)
-  ft<-flextable::set_table_properties(ft, width = 2, layout = "fixed")
+  ft<-flextable::set_table_properties(ft, layout = "fixed")
   ft <- flextable::bold(ft, bold = TRUE, part = "header")
   border_v = officer::fp_border(color="gray")
   border_h = officer::fp_border(color="gray")
