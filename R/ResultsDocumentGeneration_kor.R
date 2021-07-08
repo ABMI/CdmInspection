@@ -16,6 +16,9 @@
 #' @export
 generateResultsDocumentKor<- function(results, outputFolder, docTemplate="EHDEN", authors = "Author Names", databaseDescription, databaseName, databaseId,smallCellCount,silent=FALSE) {
 
+  ParallelLogger::clearLoggers()
+  if(!dir.exists(outputFolder)){dir.create(outputFolder,recursive=T)}
+
   if (docTemplate=="EHDEN"){
     docTemplate <- system.file("templates", "Template-EHDEN.docx", package="CdmInspection")
     logo <- system.file("templates", "pics", "ehden-logo.png", package="CdmInspection")
