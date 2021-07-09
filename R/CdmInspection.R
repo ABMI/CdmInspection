@@ -187,6 +187,7 @@ cdmInspection <- function (connectionDetails,
       performanceResults <- performanceChecks(connectionDetails = connectionDetails,
                                               cdmDatabaseSchema = cdmDatabaseSchema,
                                               resultsDatabaseSchema = resultsDatabaseSchema,
+                                              vocabDatabaseSchema = vocabDatabaseSchema,
                                               oracleTempSchema = oracleTempSchema,
                                               sqlOnly = sqlOnly,
                                               outputFolder = outputFolder)
