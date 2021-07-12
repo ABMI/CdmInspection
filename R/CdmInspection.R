@@ -201,6 +201,7 @@ cdmInspection <- function (connectionDetails,
       cohortCounts <-  createCohorts(connection = connectionDetails,
                                      cdmDatabaseSchema = cdmDatabaseSchema,
                                      cohortDatabaseSchema = cohortDatabaseSchema,
+                                     vocabularyDatabaseSchema = vocabDatabaseSchema,
                                      cohortTable = cohortTable,
                                      oracleTempSchema = oracleTempSchema,
                                      outputFolder = outputFolder)
