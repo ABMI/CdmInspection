@@ -87,6 +87,8 @@ createCohorts <- function(connection,
   # Fetch cohort counts:
   if(attr(conn,"dbms") != 'postgresql'){
     sql <- "SELECT cohort_definition_id as cohortDefinitionId, COUNT(*) AS recordCount, count(distinct subject_id) AS personCount, (select count(person_id) from @cdm_database_schema.person) as totalPersonCount, round(100*convert(float, count(distinct subject_id))/(select count(person_id) from @cdm_database_schema.person),2) AS personProportion FROM @cohort_database_schema.@cohort_table GROUP BY cohort_definition_id"
+  }else if(attr(conn,"dbms") != 'oracle'){
+    sql <- "SELECT cohort_definition_id as cohortDefinitionId, COUNT(*) AS recordCount, count(distinct subject_id) AS personCount, (select count(person_id) from @cdm_database_schema.person) as totalPersonCount, round(100*cast(count(distinct subject_id) as number(5,2))/(select count(person_id) from @cdm_database_schema.person),2) AS personProportion FROM @cohort_database_schema.@cohort_table GROUP BY cohort_definition_id"
   }else{
     sql <- "SELECT cohort_definition_id as cohortDefinitionId, COUNT(*) AS recordCount, count(distinct subject_id) AS personCount, (select count(person_id) from @cdm_database_schema.person) as totalPersonCount, round(100*cast(count(distinct subject_id) as numeric)/(select count(person_id) from @cdm_database_schema.person),2) AS personProportion FROM @cohort_database_schema.@cohort_table GROUP BY cohort_definition_id"
   }
