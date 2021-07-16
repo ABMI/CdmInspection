@@ -20,6 +20,9 @@
 # @author Peter Rijnbeek
 
 executeQuery <- function(outputFolder,sqlFileName, successMessage, connectionDetails, sqlOnly, cdmDatabaseSchema, vocabDatabaseSchema=NULL, resultsDatabaseSchema=NULL, smallCellCount = 5){
+
+
+  if(connectionDetails$dbms != 'oracle'){
   sql <- SqlRender::loadRenderTranslateSql(sqlFilename = file.path("checks",sqlFileName),
                                            packageName = "CdmInspection",
                                            dbms = connectionDetails$dbms,
@@ -28,6 +31,12 @@ executeQuery <- function(outputFolder,sqlFileName, successMessage, connectionDet
                                            cdmDatabaseSchema = cdmDatabaseSchema,
                                            resultsDatabaseSchema = resultsDatabaseSchema,
                                            smallCellCount = smallCellCount)
+  }
+
+  if(connectionDetails$dbms == 'oracle'){
+    sql <- SqlRender::readSql(system.file(file.path("sql/sql_server/checks", sqlFileName), package = "CdmInspection"))
+    sql <- SqlRender::render(sql, cdmDatabaseSchema = cdmDatabaseSchema)
+  }
 
   duration = -1
   result = NULL
