@@ -31,11 +31,19 @@ executeQuery <- function(outputFolder,sqlFileName, successMessage, connectionDet
                                            cdmDatabaseSchema = cdmDatabaseSchema,
                                            resultsDatabaseSchema = resultsDatabaseSchema,
                                            smallCellCount = smallCellCount)
-  }
-
-  if(connectionDetails$dbms == 'oracle'){
+  }else if(connectionDetails$dbms == 'oracle' && sqlFileName == 'data_tables_count_ora.sql'){
     sql <- SqlRender::readSql(system.file(file.path("sql/sql_server/checks", sqlFileName), package = "CdmInspection"))
-    sql <- SqlRender::render(sql, cdmDatabaseSchema = cdmDatabaseSchema)
+    sql <- SqlRender::render(sql,
+                             cdmDatabaseSchema = cdmDatabaseSchema)
+  }else{
+    sql <- SqlRender::loadRenderTranslateSql(sqlFilename = file.path("checks",sqlFileName),
+                                             packageName = "CdmInspection",
+                                             dbms = connectionDetails$dbms,
+                                             warnOnMissingParameters = FALSE,
+                                             vocabDatabaseSchema = vocabDatabaseSchema,
+                                             cdmDatabaseSchema = cdmDatabaseSchema,
+                                             resultsDatabaseSchema = resultsDatabaseSchema,
+                                             smallCellCount = smallCellCount)
   }
 
   duration = -1
