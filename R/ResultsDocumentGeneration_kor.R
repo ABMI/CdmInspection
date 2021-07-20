@@ -136,48 +136,58 @@ generateResultsDocumentKor<- function(results, outputFolder, docTemplate="EHDEN"
 
   ## add Concept counts
   if (!is.null(results$dataTablesResults)) {
-    df_t1 <- results$dataTablesResults$dataTablesCounts$result
-    colnames(df_t1) <- c("테이블명", "레코드 수", "환자 수 ", "Person 대비 환자 수 비율(%)", "Observation_period 대비 환자 수 비율(%)")
+    try(df_t1 <- results$dataTablesResults$dataTablesCounts)
+    if(!is.null(df_t1$result)){
+      colnames(df_t1$result) <- c("테이블명", "레코드 수", "환자 수 ", "Person 대비 환자 수 비율(%)", "Observation_period 대비 환자 수 비율(%)")
 
-    doc<-doc %>%
-      officer::body_add_par(value = "데이터 테이블 내 레코드 수", style = "heading 2") %>%
-      officer::body_add_par("표 1. 모든 임상데이터 테이블의 레코드 수를 표시합니다.") %>%
-      my_body_add_table(value = df_t1, style = "EHDEN") %>%
-      officer::body_add_par(" ") %>%
-      officer::body_add_par(paste("해당 쿼리는",sprintf("%.2f", results$dataTablesResults$dataTablesCounts$duration),"초 동안 수행되었습니다."))
+      doc<-doc %>%
+        officer::body_add_par(value = "데이터 테이블 내 레코드 수", style = "heading 2") %>%
+        officer::body_add_par("표 1. 모든 임상데이터 테이블의 레코드 수를 표시합니다.") %>%
+        my_body_add_table(value = df_t1$result, style = "EHDEN") %>%
+        officer::body_add_par(" ") %>%
+        officer::body_add_par(paste("해당 쿼리는",sprintf("%.2f", df_t1$duration),"초 동안 수행되었습니다."))
+    }
 
-    colnames(results$dataTablesResults$conceptsPerPerson$result) <- c("도메인", "최소", "10%", "25%", "중위 수", "75%", "90%", "최대")
-    doc<-doc %>%
-      officer::body_add_par(value = "환자 당 고유 개념 수", style = "heading 2") %>%
-      officer::body_add_par("표 2. 모든 데이터 도메인에 대한 환자 개인 당 고유 개념의 수") %>%
-      my_body_add_table(value = results$dataTablesResults$conceptsPerPerson$result, style = "EHDEN") %>%
-      officer::body_add_par(" ")
+    try(df_t2 <- results$dataTablesResults$conceptsPerPerson)
+    if(!is.null(df_t2$result)){
+      colnames(df_t2$result) <- c("도메인", "최소", "10%", "25%", "중위 수", "75%", "90%", "최대")
+      doc<-doc %>%
+        officer::body_add_par(value = "환자 당 고유 개념 수", style = "heading 2") %>%
+        officer::body_add_par("표 2. 모든 데이터 도메인에 대한 환자 개인 당 고유 개념의 수") %>%
+        my_body_add_table(value = df_t2$result, style = "EHDEN") %>%
+        officer::body_add_par(" ") %>%
+        officer::body_add_par(paste("해당 쿼리는",sprintf("%.2f", df_t2$duration),"초 동안 수행되었습니다."))
+    }
 
     doc<-doc %>%
       officer::body_add_par(value = "Achilles Heel 결과", style = "heading 2") %>%
       officer::body_add_par("표 3. Achilles Heel 결과 내역")
-
-    if (!is.null(results$performanceResults$achillesHeelResults$result)) {
-      heelResult <- gsub(":.*", "", results$performanceResults$achillesHeelResults$result$ACHILLES_HEEL_WARNING) %>% table() %>% as.data.frame
+    try(df_t3 <- results$performanceResults$achillesHeelResults)
+    if (!is.null(df_t3$result)) {
+      heelResult <- gsub(":.*", "", df_t3$result$ACHILLES_HEEL_WARNING) %>% table() %>% as.data.frame()
       colnames(heelResult) <- c("유형", "계")
 
       doc<-doc %>%
         my_body_add_table(value =heelResult, style = "EHDEN") %>%
         officer::body_add_par("[부록 1] Achilles Heel 결과 상세 내역 참조")
 
+    try(df_f1 <- results$dataTablesResults$totalRecords)
+    if(!is.null(df_f1$result)){
+      plot <- recordsCountPlot(as.data.frame(df_f1$result))
+      doc<-doc %>%
+        officer::body_add_par(value = "데이터 밀도 그림", style = "heading 2") %>%
+        officer::body_add_gg(plot, height=3) %>%
+        officer::body_add_par("그림 1. 시간 경과에 따른 데이터 도메인 당 총 레코드 수")
+    }
 
-    plot <- recordsCountPlot(as.data.frame(results$dataTablesResults$totalRecords$result))
-    doc<-doc %>%
-      officer::body_add_par(value = "데이터 밀도 그림", style = "heading 2") %>%
-      officer::body_add_gg(plot, height=3) %>%
-      officer::body_add_par("그림 1. 시간 경과에 따른 데이터 도메인 당 총 레코드 수")
-
-    plot <- recordsCountPlot(as.data.frame(results$dataTablesResults$recordsPerPerson$result))
-    doc<-doc %>%
-      officer::body_add_gg(plot, height=3) %>%
-      officer::body_add_par("그림 2. 시간 경과에 따른 데이터 도메인 당 환자 개인 당 레코드 수") %>%
-      body_add_break()
-
+    try(df_f2 <- results$dataTablesResults$recordsPerPerson)
+    if(!is.null(df_f2$result)){
+      plot <- recordsCountPlot(as.data.frame(df_f2$result))
+      doc<-doc %>%
+        officer::body_add_gg(plot, height=3) %>%
+        officer::body_add_par("그림 2. 시간 경과에 따른 데이터 도메인 당 환자 개인 당 레코드 수") %>%
+        body_add_break()
+    }
 
     }else{
         doc<-doc %>%
@@ -198,61 +208,75 @@ generateResultsDocumentKor<- function(results, outputFolder, docTemplate="EHDEN"
   if (!is.null(vocabResults)) {
     #vocabularies table
 
-    doc<-doc %>%
-      officer::body_add_par(value = "OMOP 용어", style = "heading 2") %>%
-      officer::body_add_par(paste0("OMOP 용어 버전: ",results$vocabularyResults$version)) %>%
-      officer::body_add_par(paste0("[부록2. OMOP 용어 개념 개수] 참조"))
-    # %>%
-    #   officer::body_add_par("표 3. 해당 CDM 내 가용한 OMOP 용어 개념의 개수. 단, 이는 실제 CDM 테이블 내에서 실제로 사용되는 개념을 반영하지는 않습니다. S = 표준 개념, C = 분류 개념, '-' = 비표준 개념") %>%
-    #   my_body_add_table(value = vocabResults$conceptCounts$result, style = "EHDEN") %>%
-    #   officer::body_add_par(" ") %>%
-    #   officer::body_add_par(paste("해당 쿼리는",sprintf("%.2f", vocabResults$conceptCounts$duration),"초 동안 수행되었습니다."))
-    ##%>% body_end_section_landscape()
+    if(!is.null(vocabResults$version)){
+      doc<-doc %>%
+        officer::body_add_par(value = "OMOP 용어", style = "heading 2") %>%
+        officer::body_add_par(paste0("OMOP 용어 버전: ", vocabResults$version)) %>%
+        officer::body_add_par(paste0("[부록2. OMOP 용어 개념 개수] 참조"))
+      # %>%
+      #   officer::body_add_par("표 3. 해당 CDM 내 가용한 OMOP 용어 개념의 개수. 단, 이는 실제 CDM 테이블 내에서 실제로 사용되는 개념을 반영하지는 않습니다. S = 표준 개념, C = 분류 개념, '-' = 비표준 개념") %>%
+      #   my_body_add_table(value = vocabResults$conceptCounts$result, style = "EHDEN") %>%
+      #   officer::body_add_par(" ") %>%
+      #   officer::body_add_par(paste("해당 쿼리는",sprintf("%.2f", vocabResults$conceptCounts$duration),"초 동안 수행되었습니다."))
+      ##%>% body_end_section_landscape()
+    }
+
 
     ## add vocabulary table counts
+    try(df_t4 <- vocabResults$vocabularyCounts)
+    if(!is.null(df_t4$result)){
+      colnames(df_t4$result) <- c("테이블 명", "개수")
 
-    colnames(vocabResults$vocabularyCounts$result) <- c("테이블 명", "개수")
-
-    doc<-doc %>%
-      officer::body_add_par(value = "테이블 레코드 수", style = "heading 2") %>%
-      officer::body_add_par("표 4. 전체 용어 테이블의 레코드 수") %>%
-      my_body_add_table(value = vocabResults$vocabularyCounts$result, style = "EHDEN") %>%
-      officer::body_add_par(" ") %>%
-      officer::body_add_par(paste("해당 쿼리는",sprintf("%.2f", vocabResults$vocabularyCounts$duration),"초 동안 수행되었습니다."))
+      doc<-doc %>%
+        officer::body_add_par(value = "테이블 레코드 수", style = "heading 2") %>%
+        officer::body_add_par("표 4. 전체 용어 테이블의 레코드 수") %>%
+        my_body_add_table(value = df_t4$result, style = "EHDEN") %>%
+        officer::body_add_par(" ") %>%
+        officer::body_add_par(paste("해당 쿼리는",sprintf("%.2f", df_t4$duration),"초 동안 수행되었습니다."))
+    }
 
     ## add Mapping Completeness
-    vocabResults$mappingCompleteness$result$'%Codes Mapped' <- prettyHr(vocabResults$mappingCompleteness$result$'%Codes Mapped')
-    vocabResults$mappingCompleteness$result$'%Records Mapped' <- prettyHr(vocabResults$mappingCompleteness$result$'%Records Mapped')
 
-    colnames(vocabResults$mappingCompleteness$result) <- c("도메인", "원본 코드 수", "매핑된 코드 수", "매핑 코드 비율(%)", "원본 레코드수", "매핑된 레코드 수", "매핑 레코드 비율(%)")
+    try(df_t5 <- vocabResults$mappingCompleteness)
+    if(!is.null(df_t5$result)){
+      df_t5$result$'%Codes Mapped' <- prettyHr(df_t5$result$'%Codes Mapped')
+      df_t5$result$'%Records Mapped' <- prettyHr(df_t5$result$'%Records Mapped')
 
-    doc<-doc %>%
-      officer::body_add_par(value = "용어 매핑의 완전성", style = "heading 2") %>%
-      officer::body_add_par("표 5. 표준화된 어휘에 매핑된 코드의 비율과 레코드의 비율") %>%
-      my_body_add_table(value = vocabResults$mappingCompleteness$result, style = "EHDEN", alignment = c('l', rep('r',6))) %>%
-      officer::body_add_par(" ") %>%
-      officer::body_add_par(paste("해당 쿼리는",sprintf("%.2f", vocabResults$mappingCompleteness$duration),"초 동안 수행되었습니다."))
+      colnames(df_t5$result) <- c("도메인", "원본 코드 수", "매핑된 코드 수", "매핑 코드 비율(%)", "원본 레코드수", "매핑된 레코드 수", "매핑 레코드 비율(%)")
 
-    colnames(vocabResults$mappingStandard$result) <- c("도메인", "표준 개념 수", "분류 개념 수", "비표준 개념 수")
-    doc<-doc %>%
-      officer::body_add_par("표 6. 매핑된 코드의 표준/분류/비표준 개념 비율") %>%
-      my_body_add_table(value = vocabResults$mappingStandard$result, style = "EHDEN", alignment = c('l', rep('r',3))) %>%
-      officer::body_add_par(" ") %>%
-      officer::body_add_par(paste("해당 쿼리는",sprintf("%.2f", vocabResults$mappingStandard$duration),"초 동안 수행되었습니다."))
+      doc<-doc %>%
+        officer::body_add_par(value = "용어 매핑의 완전성", style = "heading 2") %>%
+        officer::body_add_par("표 5. 표준화된 어휘에 매핑된 코드의 비율과 레코드의 비율") %>%
+        my_body_add_table(value = df_t5$result, style = "EHDEN", alignment = c('l', rep('r',6))) %>%
+        officer::body_add_par(" ") %>%
+        officer::body_add_par(paste("해당 쿼리는",sprintf("%.2f", df_t5$duration),"초 동안 수행되었습니다."))
+    }
+
+    try(df_t6 <- vocabResults$mappingStandard)
+    if(!is.null(df_t6$result)){
+      colnames(df_t6$result) <- c("도메인", "표준 개념 수", "분류 개념 수", "비표준 개념 수")
+      doc<-doc %>%
+        officer::body_add_par("표 6. 매핑된 코드의 표준/분류/비표준 개념 비율") %>%
+        my_body_add_table(value = df_t6$result, style = "EHDEN", alignment = c('l', rep('r',3))) %>%
+        officer::body_add_par(" ") %>%
+        officer::body_add_par(paste("해당 쿼리는",sprintf("%.2f", df_t6$duration),"초 동안 수행되었습니다."))
+    }
 
     ## add Drug Level Mappings
-    colnames(vocabResults$drugMapping$result) <- c("약물 개념 계열", "레코드 수", "환자 수", "원본 코드 수")
+    try(df_t7 <- vocabResults$drugMapping)
+    if(!is.null(df_t7$result)){
+    colnames(df_t7$result) <- c("약물 개념 계열", "레코드 수", "환자 수", "원본 코드 수")
     doc<-doc %>%
       officer::body_add_par(value = "약물 매핑", style = "heading 2") %>%
       officer::body_add_par("표 7. 약물 매핑 수준") %>%
-      my_body_add_table(value = vocabResults$drugMapping$result, style = "EHDEN") %>%
+      my_body_add_table(value = df_t7$result, style = "EHDEN") %>%
       officer::body_add_par(" ") %>%
-      officer::body_add_par(paste("해당 쿼리는",sprintf("%.2f", vocabResults$drugMapping$duration),"초 동안 수행되었습니다.")) %>%
+      officer::body_add_par(paste("해당 쿼리는",sprintf("%.2f", df_t7$duration),"초 동안 수행되었습니다.")) %>%
       officer::body_add_par(paste("약물 개념 계열 해설은 URL 참고: https://github.com/OHDSI/Vocabulary-v5.0/wiki/Vocab.-RXNORM_EXTENSION"))
-
+    }
     ## add source_to_concept_map breakdown
 
-    colnames(vocabResults$sourceConceptFrequency$result) <- c("원본 용어체계 ID", "목표 용어체계 ID", "개수")
+    # colnames(vocabResults$sourceConceptFrequency$result) <- c("원본 용어체계 ID", "목표 용어체계 ID", "개수")
 
     # doc<-doc %>%
     #   officer::body_add_par(value = "원본코드-개념 매핑", style = "heading 2") %>%
@@ -276,7 +300,7 @@ generateResultsDocumentKor<- function(results, outputFolder, docTemplate="EHDEN"
   #   officer::body_add_par("> 데이터 소스가 FEEDER-NET 데이터베이스 카탈로그에 추가되었으며, CatalogUeExport 결과가 시각화를 위해 업로드 되었습니까? 또한 이정보를 정기적으로 업데이트하기 위한 프로세스가 합의되었는지 서술하십시오.", style="Highlight") %>%
   #   officer::body_add_par(paste0("> 백업, 재난복구 시스템, ATLAS 호스팅 웹 서버 사양, 테스팅 환경 등과 같은 각 기관 인프라에 대한 정보가 추가적으로 있는 경우 여기에 추가하십시오."), style="Highlight")
 
-  if (!is.null(results$dataTablesResults)) {
+  if (!is.null(results$cdmSource)) {
     #cdm source
     t_cdmSource <- data.table::transpose(results$cdmSource)
     colnames(t_cdmSource) <- rownames(results$cdmSource)
@@ -347,38 +371,42 @@ generateResultsDocumentKor<- function(results, outputFolder, docTemplate="EHDEN"
       body_add_break()
   }
   doc<-doc %>%
-    officer::body_add_par(value = "연구 활용 가능성", style = "heading 1") %>%
-    officer::body_add_par(paste0("이 항목에는 FEEDER-NET/OHDSI/EHDEN 커뮤니티와의 상호작용 및 매핑 프로세스 후 교육과 관련된 몇 가지 항목이 포함되어 있습니다."))
+    officer::body_add_par(value = "연구 활용 가능성", style = "heading 1")
+    # officer::body_add_par(paste0("이 항목에는 FEEDER-NET/OHDSI/EHDEN 커뮤니티와의 상호작용 및 매핑 프로세스 후 교육과 관련된 몇 가지 항목이 포함되어 있습니다."))
 
-  colnames(results$cohortCounts) <- c("코호트 번호", "코호트 이름", "레코드 수", "환자 수", "전체 환자 수", "해당 환자 비율 (%)", "쿼리 수행시간 (초)")
+  try(df_t10 <- results$cohortCounts)
+  if(!is.null(df_t10)){
+    colnames(df_t10) <- c("코호트 번호", "코호트 이름", "레코드 수", "환자 수", "전체 환자 수", "해당 환자 비율 (%)", "쿼리 수행시간 (초)")
 
-  doc<-doc %>%
-    officer::body_add_par(value = "연구 샘플 코호트 생성", style = "heading 2") %>%
-    officer::body_add_par("표 10. 연구용 샘플 코호트 생성 및 환자 수") %>%
-    my_body_add_table(value = results$cohortCounts, style = "EHDEN")
+    doc<-doc %>%
+      officer::body_add_par(value = "연구 샘플 코호트 생성", style = "heading 2") %>%
+      officer::body_add_par("표 10. 연구용 샘플 코호트 생성 및 환자 수") %>%
+      my_body_add_table(value = df_t10, style = "EHDEN")
 
-  # doc<-doc %>%
-  #   officer::body_add_par(value = "사용자 교육 방안", style = "heading 2") %>%
-  #   officer::body_add_par(paste0("해당 기관에서 어떻게 여러 사용자들을 교육하고, 훈련시킬 것 인지에 대하여 서술하십시오. 또한 현재 해당 기관의 CDM 전문성 정도에 대하여 서술하십시오."), style="Highlight")
-  #
-  # doc<-doc %>%
-  #   officer::body_add_par(value = "공동연구 수행 방안", style = "heading 2") %>%
-  #   officer::body_add_par(paste0("데이터 파트너가 진행중인 FEEDER-NET/OHDSI/EHDEN 네트워크 연구를 수행할 수 있는지에 대한 방안에 대하여 서술하십시오 (거버넌스 문제, 자원 부족 문제 해결 방안 등을 포함)."), style="Highlight") %>%
-  #   officer::body_add_par(paste0("> 공동 연구 주도 및 수행할 계획이 있습니까?"), style="Highlight") %>%
-  #   officer::body_add_par(paste0("> OHDSI working 그룹에 참여할 계획이 있습니까?"), style="Highlight")
-  #
-  # doc <-  doc %>%
-  #   body_add_par('품질 관리 방안', style = "heading 1") %>%
-  #   officer::body_add_par("> 데이터 품질 대시보드 (Data Quality Dashboard) 결과가 100%임을 확인하십시오. 혹은 품질 인정 기준치가 변경되었는지 확인하십시오.", style="Highlight") %>%
-  #   officer::body_add_par("> 기준치가 변경된 이유를 논의하고 이 정보를 공유하여 주십시오.", style="Highlight") %>%
-  #   officer::body_add_par("> 데이터 파트너와 함께 Achilles 결과를 검토했습니까?", style="Highlight") %>%
-  #   officer::body_add_par("> ETL 코드는 어떻게 테스트하였습니까? 이상적으로는 품질 관리 단계에대하여 논의하거나, 이를 실행하는 코드를 공유하시기를 권합니다. 모든 검토 단계를 통과하였습니까? 예를 들어 원본 자료와 CDM의 사람 수를 비교할 수 있고, 차이에 대하여 충분히 설명되었습니까?", style="Highlight")
-  #
-  # doc <-  doc %>%
-  #   body_add_par('유지 관리 방안', style = "heading 1") %>%
-  #   body_add_par("> 새로운 원본 데이터를 사용할 수 있거나, 원본 코드 체계가 업데이트 되었을때, 혹은 새로운 CDM 버전이 출시되었을 때 OMOP CDM의 데이터를 최신 상태로 유지하기 위하여 해당 기관에서 구현한 프로세스를 간략하게 설명하십시오. 또한 이전 CDM 버전을 어떻게 유지할지에 대해서도 서술하십시오.", style="Highlight") %>%
-  #   body_add_par("> 분석 및 변환 툴 업데이트를 위해 해당 기관에서 시행한 유지 관리 전략을 서술하시오. ", style="Highlight") %>%
-  #   body_add_break()
+    # doc<-doc %>%
+    #   officer::body_add_par(value = "사용자 교육 방안", style = "heading 2") %>%
+    #   officer::body_add_par(paste0("해당 기관에서 어떻게 여러 사용자들을 교육하고, 훈련시킬 것 인지에 대하여 서술하십시오. 또한 현재 해당 기관의 CDM 전문성 정도에 대하여 서술하십시오."), style="Highlight")
+    #
+    # doc<-doc %>%
+    #   officer::body_add_par(value = "공동연구 수행 방안", style = "heading 2") %>%
+    #   officer::body_add_par(paste0("데이터 파트너가 진행중인 FEEDER-NET/OHDSI/EHDEN 네트워크 연구를 수행할 수 있는지에 대한 방안에 대하여 서술하십시오 (거버넌스 문제, 자원 부족 문제 해결 방안 등을 포함)."), style="Highlight") %>%
+    #   officer::body_add_par(paste0("> 공동 연구 주도 및 수행할 계획이 있습니까?"), style="Highlight") %>%
+    #   officer::body_add_par(paste0("> OHDSI working 그룹에 참여할 계획이 있습니까?"), style="Highlight")
+    #
+    # doc <-  doc %>%
+    #   body_add_par('품질 관리 방안', style = "heading 1") %>%
+    #   officer::body_add_par("> 데이터 품질 대시보드 (Data Quality Dashboard) 결과가 100%임을 확인하십시오. 혹은 품질 인정 기준치가 변경되었는지 확인하십시오.", style="Highlight") %>%
+    #   officer::body_add_par("> 기준치가 변경된 이유를 논의하고 이 정보를 공유하여 주십시오.", style="Highlight") %>%
+    #   officer::body_add_par("> 데이터 파트너와 함께 Achilles 결과를 검토했습니까?", style="Highlight") %>%
+    #   officer::body_add_par("> ETL 코드는 어떻게 테스트하였습니까? 이상적으로는 품질 관리 단계에대하여 논의하거나, 이를 실행하는 코드를 공유하시기를 권합니다. 모든 검토 단계를 통과하였습니까? 예를 들어 원본 자료와 CDM의 사람 수를 비교할 수 있고, 차이에 대하여 충분히 설명되었습니까?", style="Highlight")
+    #
+    # doc <-  doc %>%
+    #   body_add_par('유지 관리 방안', style = "heading 1") %>%
+    #   body_add_par("> 새로운 원본 데이터를 사용할 수 있거나, 원본 코드 체계가 업데이트 되었을때, 혹은 새로운 CDM 버전이 출시되었을 때 OMOP CDM의 데이터를 최신 상태로 유지하기 위하여 해당 기관에서 구현한 프로세스를 간략하게 설명하십시오. 또한 이전 CDM 버전을 어떻게 유지할지에 대해서도 서술하십시오.", style="Highlight") %>%
+    #   body_add_par("> 분석 및 변환 툴 업데이트를 위해 해당 기관에서 시행한 유지 관리 전략을 서술하시오. ", style="Highlight") %>%
+    #   body_add_break()
+
+  }
 
 
   doc <-  doc %>%
@@ -432,7 +460,7 @@ generateResultsDocumentKor<- function(results, outputFolder, docTemplate="EHDEN"
   colnames(vocabResults$mappedDevices$result) <- c("순위", "개념명", "레코드 수 ", "환자 수")
 
   doc<-doc %>%
-    officer::body_add_par(value = "매핑 코드", style = "heading 2")
+    officer::body_add_par(value = "매핑 개념", style = "heading 3")
   my_mapped_section_kor(doc, vocabResults$mappedDrugs, 1, "약물", smallCellCount)
   my_mapped_section_kor(doc, vocabResults$mappedConditions, 2, "진단", smallCellCount)
   my_mapped_section_kor(doc, vocabResults$mappedMeasurements, 3, "검사", smallCellCount)
@@ -450,7 +478,7 @@ generateResultsDocumentKor<- function(results, outputFolder, docTemplate="EHDEN"
   colnames(vocabResults$unmappedDevices$result) <- c("순위", "원본 코드", "레코드 수 ", "환자 수")
 
   doc<-doc %>%
-    officer::body_add_par(value = "미 매핑 개념", style = "heading 2")
+    officer::body_add_par(value = "미 매핑 개념", style = "heading 3")
   my_unmapped_section_kor(doc, vocabResults$unmappedDrugs, 7, "약물", smallCellCount)
   my_unmapped_section_kor(doc, vocabResults$unmappedConditions, 8, "진단", smallCellCount)
   my_unmapped_section_kor(doc, vocabResults$unmappedMeasurements, 9, "검사", smallCellCount)
