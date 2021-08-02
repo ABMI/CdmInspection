@@ -59,8 +59,8 @@ vocabularyChecks <- function (connectionDetails,
 
   mappingStandard <- executeQuery(outputFolder,"mapping_standard.sql", "Standard mapping counting query executed successfully", connectionDetails, sqlOnly, cdmDatabaseSchema, vocabDatabaseSchema)
   mappingStandard$result <- as.data.frame(reshape2::dcast(mappingStandard$result, DOMAIN ~ STANDARD_CONCEPT, value.var="CNT"))
-  colnames(mappingStandard$result) <- c("DOMAIN", "NS", "C", "S")
-  mappingStandard$result <- mappingStandard$result[,c(1,4,3,2)]
+  # colnames(mappingStandard$result) <- c("DOMAIN", "NS", "C", "S")
+  # mappingStandard$result <- mappingStandard$result[,c(1,4,3,2)]
 
   drugMapping  <- executeQuery(outputFolder,"mapping_levels_drugs.sql", "Drug Level Mapping query executed successfully", connectionDetails, sqlOnly,  cdmDatabaseSchema, vocabDatabaseSchema)
   unmappedDrugs<- executeQuery(outputFolder,"unmapped_drugs.sql", "Unmapped drugs query executed successfully", connectionDetails, sqlOnly, cdmDatabaseSchema, vocabDatabaseSchema, smallCellCount)
