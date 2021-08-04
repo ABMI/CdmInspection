@@ -257,7 +257,7 @@ generateResultsDocumentKor<- function(results, outputFolder, docTemplate="EHDEN"
       # colnames(df_t6$result) <- c("도메인", "표준 개념 수", "분류 개념 수", "비표준 개념 수")
       doc<-doc %>%
         officer::body_add_par("표 6. 매핑된 코드의 표준/분류/비표준 개념 비율") %>%
-        my_body_add_table(value = df_t6$result, style = "EHDEN", alignment = c('l', rep('r',3))) %>%
+        my_body_add_table(value = df_t6$result, style = "EHDEN") %>%
         officer::body_add_par(" ") %>%
         officer::body_add_par(paste("해당 쿼리는",sprintf("%.2f", df_t6$duration),"초 동안 수행되었습니다."))
     }
