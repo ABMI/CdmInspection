@@ -128,7 +128,7 @@
       "Package": "SqlRender",
       "Version": "1.7.0",
       "Source": "Repository",
-      "Repository": "CRAN",
+      "Repository": null,
       "Hash": "c9f77eea223a6942eea0072b72e6ceb9"
     },
     "XML": {
