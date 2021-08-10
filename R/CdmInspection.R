@@ -198,7 +198,7 @@ cdmInspection <- function (connectionDetails,
 
     if (createCohorts) {
       ParallelLogger::logInfo(paste0("Creating Cohorts"))
-      cohortCounts <-  createCohorts(connection = connectionDetails,
+      cohortCounts <-  CdmInspection::createCohorts(connection = connectionDetails,
                                      cdmDatabaseSchema = cdmDatabaseSchema,
                                      cohortDatabaseSchema = cohortDatabaseSchema,
                                      vocabularyDatabaseSchema = vocabDatabaseSchema,
