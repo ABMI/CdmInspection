@@ -8,60 +8,54 @@
 # Below you will find 2 sections: the 1st is for installing the dependencies
 # required to run the package and the 2nd for running the package.
 #
-# The code below makes use of R environment variables (denoted by "Sys.getenv(<setting>)") to
-# allow for protection of sensitive information. If you'd like to use R environment variables stored
-# in an external file, this can be done by creating an .Renviron file in the root of the folder
-# where you have cloned this code. For more information on setting environment variables please refer to:
-# https://stat.ethz.ch/R-manual/R-devel/library/base/html/readRenviron.html
 #
 #
-# Below is an example .Renviron file's contents: (please remove)
-# the "#" below as these too are interprted as comments in the .Renviron file:
-#
-# DBMS = "postgresql"
-# DB_SERVER = "database.server.com"
-# DB_PORT = 5432
-# DB_USER = "database_user_name_goes_here"
-# DB_PASSWORD = "your_secret_password"
-# FFTEMP_DIR = "E:/fftemp"
-#
-# The following describes the settings
-#    DBMS, DB_SERVER, DB_PORT, DB_USER, DB_PASSWORD := These are the details used to connect
-#    to your database server. For more information on how these are set, please refer to:
-#    http://ohdsi.github.io/DatabaseConnector/
-#
-#    FFTEMP_DIR = A directory where temporary files used by the FF package are stored while running.
-#.
-#
-# Once you have established an .Renviron file, you must restart your R session for R to pick up these new
-# variables.
-#
-# In section 2 below, you will also need to update the code to use your site specific values. Please scroll
-# down for specific instructions.
-#-----------------------------------------------------------------------------------------------
-#
-#
+
 # *******************************************************
 # SECTION 1: Make sure to install all dependencies (not needed if already done) -------------------------------
 # *******************************************************
 #
-# Prevents errors due to packages being built for other R versions:
-Sys.setenv("R_REMOTES_NO_ERRORS_FROM_WARNINGS" = TRUE)
-#
-# First, it probably is best to make sure you are up-to-date on all existing packages.
-# Important: This code is best run in R, not RStudio, as RStudio may have some libraries
-# (like 'rlang') in use.
-#update.packages(ask = "graphics")
+# restore all dependencies to your in-package library
+install.packages("renv") # you can skip this if you already installed it.
+renv::restore()
 
-# When asked to update packages, select '1' ('update all') (could be multiple times)
-# When asked whether to install from source, select 'No' (could be multiple times)
-#install.packages("devtools")
-#devtools::install_github("EHDEN/CdmInspection.R")
+# or If you want to use your local library, please run 'renv::deactivate()'
+
+# Below is an example .Renviron file's contents: (please remove)
+# the "#" below as these too are interprted as comments in the .Renviron file:
+
+# usethis::edit_r_environ()
+
+# 새로 뜨는 창에 아래 내용 입력 후 저장
+# DBMS=‘DBMS 정보 입력’
+# DB_SEVER=‘서버 정보 입력’
+# DB_USER=‘DB 접속을 위한 ID입력’
+# DB_PASSWORD=‘비밀번호 입력’
+# DB_PORT=‘포트입력’
+# FFTEMP_DIR=‘임시 저장 디렉토리 입력’
+
+# r 재시작 (ctrl+shift+F10)
+
+
+# For example,
+
+# DBMS = "postgresql"
+# DB_SERVER = "database.server.com" or '123.456.789/OMOPCDM'
+# DB_PORT = 5432
+# DB_USER = "database_user_name_goes_here"
+# DB_PASSWORD = "your_secret_password"
+# FFTEMP_DIR = "C:/fftemp"
+#
+
 
 # *******************************************************
 # SECTION 2: Set Local Details
 # *******************************************************
 library(CdmInspection)
+
+# Prevents errors due to packages being built for other R versions:
+Sys.setenv("R_REMOTES_NO_ERRORS_FROM_WARNINGS" = TRUE)
+Sys.setlocale("LC_ALL", locale = "KOR")
 
 # Optional: specify where the temporary files (used by the ff package) will be created:
 fftempdir <- if (Sys.getenv("FFTEMP_DIR") == "") "~/fftemp" else Sys.getenv("FFTEMP_DIR")
@@ -99,7 +93,8 @@ cohortDatabaseSchema <- "<your_cohort_schema>"
 cohortTable <- "CdmInspectionCohort"
 
 # Url to check the version of your local Atlas
-baseUrl <- "<your_baseUrl>" # example: "http://atlas-demo.ohdsi.org/WebAPI"
+# baseUrl <- "<your_baseUrl>"
+# example: "http://atlas-demo.ohdsi.org/WebAPI"
 
 # All results smaller than this value are removed from the results.
 smallCellCount <- 5
@@ -110,12 +105,23 @@ verboseMode <- TRUE
 # SECTION 3: Run the package
 # *******************************************************
 
+
+folder <- "./Java_home"
+DatabaseConnector::downloadJdbcDrivers(dbms = dbms, pathToDriver = folder)
+
 connectionDetails <- DatabaseConnector::createConnectionDetails(dbms = dbms,
                                                                 server = server,
                                                                 user = user,
                                                                 password = password,
                                                                 # connectionString = connectionString,
-                                                                pathToDriver = Sys.getenv("DATABASECONNECTOR_JAR_FOLDER"))
+                                                                pathToDriver = folder)
+
+# If your version of DatabaseConnector is < 4.0, please run codes below
+# connectionDetails <- DatabaseConnector::createConnectionDetails(dbms = dbms,
+#                                                                 server = server,
+#                                                                 user = user,
+#                                                                 password = password,
+#                                                                 # connectionString = connectionString)
 
 results<-cdmInspection(connectionDetails,
                        cdmDatabaseSchema = cdmDatabaseSchema,
@@ -131,14 +137,13 @@ results<-cdmInspection(connectionDetails,
                        runDataTablesChecks = TRUE,
                        runPerformanceChecks = TRUE,
                        createCohorts = TRUE,
-                       runWebAPIChecks = TRUE,
+                       runWebAPIChecks = FALSE,
                        smallCellCount = smallCellCount,
-                       baseUrl = baseUrl,
+                       baseUrl,
                        sqlOnly = FALSE,
                        outputFolder = outputFolder,
                        verboseMode = verboseMode)
 
-docTemplate = "document template"
+docTemplate = "FEEDERNET"
 
-# generateResultsDocument(results,outputFolder, authors=authors, databaseDescription = databaseDescription, databaseName = databaseName, databaseId = databaseId, smallCellCount = smallCellCount)
 generateResultsDocumentKor(results,outputFolder, authors=authors, databaseDescription = databaseDescription, databaseName = databaseName, databaseId = databaseId, smallCellCount = smallCellCount)

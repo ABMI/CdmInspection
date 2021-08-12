@@ -73,7 +73,7 @@ cdmInspection <- function (connectionDetails,
                            runPerformanceChecks = TRUE,
                            createCohorts = TRUE,
                            runWebAPIChecks = TRUE,
-                           baseUrl,
+                           baseUrl = NULL,
                            sqlOnly = FALSE,
                            outputFolder = "output",
                            verboseMode = TRUE) {
