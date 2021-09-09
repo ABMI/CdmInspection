@@ -146,4 +146,4 @@ results<-cdmInspection(connectionDetails,
 
 docTemplate = "FEEDERNET"
 
-generateResultsDocumentKor(results,outputFolder, authors=authors, databaseDescription = databaseDescription, databaseName = databaseName, databaseId = databaseId, smallCellCount = smallCellCount)
+generateResultsDocumentKor(results,outputFolder, authors=authors, docTemplate = "FEEDERNET", databaseDescription = databaseDescription, databaseName = databaseName, databaseId = databaseId, smallCellCount = smallCellCount)
