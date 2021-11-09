@@ -67,7 +67,7 @@ createCohorts <- function(connection,
   pathToCsv <- system.file("settings", "CohortsToCreate.csv", package = "CdmInspection")
   cohortsToCreate <- read.csv(pathToCsv)
   duration <- data.frame(cohortName = cohortsToCreate$name, executionTime = NA)
-  for (i in c(1,3,4,5)) {
+  for (i in c(1:5)) {
     start_time <- Sys.time()
     writeLines(paste("Creating cohort:", cohortsToCreate$name[i]))
     sql <- SqlRender::loadRenderTranslateSql(sqlFilename = paste0(cohortsToCreate$name[i], ".sql"),
