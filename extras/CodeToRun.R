@@ -130,5 +130,7 @@ results<-cdmInspection(connectionDetails,
                 outputFolder = outputFolder,
                 verboseMode = verboseMode)
 
+results <- readRDS(paste0(outputFolder, '/inspection_results.rds'))
+
 generateResultsDocument(results,outputFolder, authors=authors, databaseDescription = databaseDescription, databaseName = databaseName, databaseId = databaseId, smallCellCount = smallCellCount)
 
