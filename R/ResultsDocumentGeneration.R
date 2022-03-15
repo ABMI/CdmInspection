@@ -43,14 +43,14 @@ generateResultsDocument<- function(results, outputFolder, docTemplate="EHDEN", a
   ## add genereal section
 
   items <- c("Data Partner",
-                 "Database fullname",
-                 "Database acronym",
-                 "Contact Person",
-                 "Email",
-                 "SME",
-                 "Contact Person",
-                 "Email SME"
-                 )
+             "Database fullname",
+             "Database acronym",
+             "Contact Person",
+             "Email",
+             "SME",
+             "Contact Person",
+             "Email SME"
+  )
   answers <- c("",databaseName, databaseId,"","","","","")
   preample <- data.frame(items,answers)
   ft <- flextable::qflextable(preample)
@@ -72,15 +72,15 @@ generateResultsDocument<- function(results, outputFolder, docTemplate="EHDEN", a
   doc<-doc %>%
     officer::body_add_par(value = "Database Description", style = "heading 2")
 
-    if (is.null(databaseDescription)){
-      doc<-doc %>%
-        officer::body_add_par(value = paste0("Provide a short description of the database"), style="Highlight")
-    } else {
-      doc<-doc %>%
-        officer::body_add_par(value = databaseDescription)
-    }
+  if (is.null(databaseDescription)){
+    doc<-doc %>%
+      officer::body_add_par(value = paste0("Provide a short description of the database"), style="Highlight")
+  } else {
+    doc<-doc %>%
+      officer::body_add_par(value = databaseDescription)
+  }
 
-    doc<-doc %>% officer::body_add_par(value = "SME Role", style = "heading 2") %>%
+  doc<-doc %>% officer::body_add_par(value = "SME Role", style = "heading 2") %>%
 
     officer::body_add_par(value = "Describe the involvement of the SME in the ETL Delopment process",style="Highlight") %>%
     officer::body_add_break()
@@ -88,25 +88,25 @@ generateResultsDocument<- function(results, outputFolder, docTemplate="EHDEN", a
 
   ## ETL Development section
 
-    doc<-doc %>%
-      officer::body_add_par(value = "ETL Development General", style = "heading 1") %>%
-      officer::body_add_par(paste0("This section decribes the ETL development steps and discusses the quality control steps performed by the SME")) %>%
-      officer::body_add_par(value = "ETL Documentation", style = "heading 2") %>%
-      officer::body_add_par("Perform the following checks and discuss the findings here:", style="Highlight") %>%
+  doc<-doc %>%
+    officer::body_add_par(value = "ETL Development General", style = "heading 1") %>%
+    officer::body_add_par(paste0("This section decribes the ETL development steps and discusses the quality control steps performed by the SME")) %>%
+    officer::body_add_par(value = "ETL Documentation", style = "heading 2") %>%
+    officer::body_add_par("Perform the following checks and discuss the findings here:", style="Highlight") %>%
 
-      officer::body_add_par("Approve the quality of the ETL documentation with respect to its completeness and level of detail per data domain. Ideally it is based on the Rabbit-in-a-Hat mapping definition document. If a staging table approach is used, its creation needs to be described in detail.", style="Highlight") %>%
-      officer::body_add_par("Does it contain enough detail on the applied business rules and are the THEMIS rules followed?", style="Highlight") %>%
-      officer::body_add_par("Compare the ETL documentation with the shared ETL code to make sure it is a correct representation of the implementation. Ideally, end-to-end tests using the Rabbit-in-a-hat testFramework.R is implemented and results are shared. If this is not available explain the quality control mechanism that is applied", style="Highlight") %>%
-      officer::body_add_par("Is the ETL code executable fully automatically or are there manual steps? If there are manual steps these need to be explained.", style="Highlight") %>%
-      officer::body_add_par(value = "ETL Implementation", style = "heading 2") %>%
-      officer::body_add_par("Described the technology used for implementing the ETL (SQL,R, Python etc).", style="Highlight") %>%
+    officer::body_add_par("Approve the quality of the ETL documentation with respect to its completeness and level of detail per data domain. Ideally it is based on the Rabbit-in-a-Hat mapping definition document. If a staging table approach is used, its creation needs to be described in detail.", style="Highlight") %>%
+    officer::body_add_par("Does it contain enough detail on the applied business rules and are the THEMIS rules followed?", style="Highlight") %>%
+    officer::body_add_par("Compare the ETL documentation with the shared ETL code to make sure it is a correct representation of the implementation. Ideally, end-to-end tests using the Rabbit-in-a-hat testFramework.R is implemented and results are shared. If this is not available explain the quality control mechanism that is applied", style="Highlight") %>%
+    officer::body_add_par("Is the ETL code executable fully automatically or are there manual steps? If there are manual steps these need to be explained.", style="Highlight") %>%
+    officer::body_add_par(value = "ETL Implementation", style = "heading 2") %>%
+    officer::body_add_par("Described the technology used for implementing the ETL (SQL,R, Python etc).", style="Highlight") %>%
 
-      officer::body_add_par("Provide feedback on the level of commenting and code structure. The minimum level of commenting contains an explanation of the sql query, R function, etc. See also the guidance provided by OHDSI. Code structure refers to a logical structure of the SQL/R files. We recommend that the files are name as their target table and contain all code related to that domain, e.g. insert_person.sql, insert_condition_occurence.sql. If another method is applied provide there details.", style="Highlight") %>%
+    officer::body_add_par("Provide feedback on the level of commenting and code structure. The minimum level of commenting contains an explanation of the sql query, R function, etc. See also the guidance provided by OHDSI. Code structure refers to a logical structure of the SQL/R files. We recommend that the files are name as their target table and contain all code related to that domain, e.g. insert_person.sql, insert_condition_occurence.sql. If another method is applied provide there details.", style="Highlight") %>%
 
-       officer::body_add_par("Is there a version control mechanism in place?", style="Highlight")
+    officer::body_add_par("Is there a version control mechanism in place?", style="Highlight")
 
 
-    ## add Concept counts
+  ## add Concept counts
   if (!is.null(results$dataTablesResults)) {
     df_t1 <- results$dataTablesResults$dataTablesCounts$result
     doc<-doc %>%
@@ -211,15 +211,15 @@ generateResultsDocument<- function(results, outputFolder, docTemplate="EHDEN", a
       officer::body_add_par("If you did not use the source_to_concept_map table in the ETL the table below will be empty. In that case provide your custom mappings in an Excel file.", style="Highlight") %>%
       officer::body_add_par("Table 19. Source to concept map breakdown")
     try({
-    doc<-doc %>% my_body_add_table(value = vocabResults$sourceConceptFrequency$result, style = "EHDEN") %>%
-      officer::body_add_par(" ") %>%
-      officer::body_add_par(paste("Query executed in ",sprintf("%.2f", vocabResults$sourceConceptFrequency$duration),"secs")) %>%
-      officer::body_add_par("Note that the full source_to_concept_map table is added in the results.zip", style="Highlight")
+      doc<-doc %>% my_body_add_table(value = vocabResults$sourceConceptFrequency$result, style = "EHDEN") %>%
+        officer::body_add_par(" ") %>%
+        officer::body_add_par(paste("Query executed in ",sprintf("%.2f", vocabResults$sourceConceptFrequency$duration),"secs")) %>%
+        officer::body_add_par("Note that the full source_to_concept_map table is added in the results.zip", style="Highlight")
     })
   } else {
     doc<-doc %>%
-    officer::body_add_par("Vocabulary checks have not been executed, runVocabularyChecks = FALSE?", style="Highlight") %>%
-    officer::body_add_break()
+      officer::body_add_par("Vocabulary checks have not been executed, runVocabularyChecks = FALSE?", style="Highlight") %>%
+      officer::body_add_break()
   }
 
   doc<-doc %>%
@@ -249,10 +249,10 @@ generateResultsDocument<- function(results, outputFolder, docTemplate="EHDEN", a
 
     if (results$missingPackage=="") {
       doc<-doc %>%
-      officer::body_add_par("All HADES packages were available")
+        officer::body_add_par("All HADES packages were available")
     } else {
       doc<-doc %>%
-      officer::body_add_par(paste0("Missing HADES packages: ",results$missingPackages))
+        officer::body_add_par(paste0("Missing HADES packages: ",results$missingPackages))
     }
 
     #system detail
@@ -291,48 +291,75 @@ generateResultsDocument<- function(results, outputFolder, docTemplate="EHDEN", a
       officer::body_add_par("Performance checks have not been executed, runPerformanceChecks = FALSE?", style="Highlight") %>%
       body_add_break()
   }
+  doc<-doc %>%
+    officer::body_add_par(value = "Scientific Preparedness", style = "heading 1") %>%
+    officer::body_add_par(paste0("This section contains several items related to the interaction with the EHDEN/OHDSI community and training after the mapping process."))
+
+  doc<-doc %>%
+    officer::body_add_par(value = "Staff training", style = "heading 2") %>%
+    officer::body_add_par(paste0("Describe how the Data Partner will train and educate the different users of the system in their organizaton and what the current status is of the expertise in the team. "), style="Highlight")
+
+  doc<-doc %>%
+    officer::body_add_par(value = "Study execution", style = "heading 2") %>%
+    officer::body_add_par(paste0("Describe how the Data Partner will be able to execute the ongoing OHDSI/EHDEN network studies, e.g. are there governance issues, lack of resources, etc."), style="Highlight") %>%
+    officer::body_add_par(paste0("Are there plans to initiate research studies?"), style="Highlight") %>%
+    officer::body_add_par(paste0("Are there plans to participate in OHDSI Working Groups?"), style="Highlight")
+
+  doc <-  doc %>%
+    body_add_par('Quality Control', style = "heading 1") %>%
+    officer::body_add_par("Show that the Data Quality Dashboard results are 100% and check if the thresholds have been changed by doing a diff with the default.", style="Highlight") %>%
+    officer::body_add_par("Discuss with the Data Partner why the thresholds have been changed and share this information.", style="Highlight") %>%
+    officer::body_add_par("Have the Achilles results been reviewed by the Data Partner?", style="Highlight") %>%
+    officer::body_add_par("How is the ETL code tested? Discuss the quality controls steps or ideally share the code that executes this. Have all checks been passed? For example, is there a comparison available of the person count on the source and CDM and are the differences explained?", style="Highlight")
+
+  doc <- doc %>%
+    officer::body_add_par(value = 'Achilles Heel Result', style = 'heading 2') %>%
+    officer::body_add_par("Table 23. Achilles Heel Result")
+  try(df_t3 <- results$performanceResults$achillesHeelResults)
+  if(!is.null(df_t3$result)){
+    heelResult <- gsub(":.*", "", df_t3$result$ACHILLES_HEEL_WARNING) %>% table() %>% as.data.frame()
+    colnames(heelResult) <- c("Class", "Count")
     doc<-doc %>%
-      officer::body_add_par(value = "Scientific Preparedness", style = "heading 1") %>%
-      officer::body_add_par(paste0("This section contains several items related to the interaction with the EHDEN/OHDSI community and training after the mapping process."))
+      my_body_add_table(value=heelResult, style = "EHDEN") %>%
+      officer::body_add_par(" ")
+  }
+
+  if(!is.null(df_t3$result)){
+
+    colnames(df_t3$result) <- c("analysisId", "ruleId", "ACHILLES_HEEL_warning", "count")
 
     doc<-doc %>%
-      officer::body_add_par(value = "Staff training", style = "heading 2") %>%
-      officer::body_add_par(paste0("Describe how the Data Partner will train and educate the different users of the system in their organizaton and what the current status is of the expertise in the team. "), style="Highlight")
-
-    doc<-doc %>%
-      officer::body_add_par(value = "Study execution", style = "heading 2") %>%
-      officer::body_add_par(paste0("Describe how the Data Partner will be able to execute the ongoing OHDSI/EHDEN network studies, e.g. are there governance issues, lack of resources, etc."), style="Highlight") %>%
-      officer::body_add_par(paste0("Are there plans to initiate research studies?"), style="Highlight") %>%
-      officer::body_add_par(paste0("Are there plans to participate in OHDSI Working Groups?"), style="Highlight")
-
-    doc <-  doc %>%
-      body_add_par('Quality Control', style = "heading 1") %>%
-      officer::body_add_par("Show that the Data Quality Dashboard results are 100% and check if the thresholds have been changed by doing a diff with the default.", style="Highlight") %>%
-      officer::body_add_par("Discuss with the Data Partner why the thresholds have been changed and share this information.", style="Highlight") %>%
-      officer::body_add_par("Have the Achilles results been reviewed by the Data Partner?", style="Highlight") %>%
-      officer::body_add_par("How is the ETL code tested? Discuss the quality controls steps or ideally share the code that executes this. Have all checks been passed? For example, is there a comparison available of the person count on the source and CDM and are the differences explained?", style="Highlight")
-
-    doc <-  doc %>%
-      body_add_par('Maintenance', style = "heading 1") %>%
-      body_add_par("Describe briefly the process the Data Partner implemented to keep the data in the OMOP CDM up-to-date when new source data will become available, if the local coding systems are updated, or if new versions of the CDM will be released. Describe how versions of the CDM will be maintained over time.", style="Highlight") %>%
-      body_add_par("Describe the maintenance process put in place by the data partner for the tool updates.", style="Highlight") %>%
+      officer::body_add_par("Table 24. Detailed Achilles Heel Result") %>%
+      my_body_add_table(value =df_t3$result, style = "EHDEN") %>%
+      officer::body_add_par(" ") %>%
+      officer::body_add_par(paste("Query executed in ",sprintf("%.2f", results$performanceResults$achillesHeelResults$duration)," secs")) %>%
       body_add_break()
+  } else {
+    doc<-doc %>%
+      officer::body_add_par("Query did not return results ", style="Highlight")
+  }
 
-    doc <-  doc %>%
-      body_add_par('Checklist', style = "heading 1") %>%
+  doc <-  doc %>%
+    body_add_par('Maintenance', style = "heading 1") %>%
+    body_add_par("Describe briefly the process the Data Partner implemented to keep the data in the OMOP CDM up-to-date when new source data will become available, if the local coding systems are updated, or if new versions of the CDM will be released. Describe how versions of the CDM will be maintained over time.", style="Highlight") %>%
+    body_add_par("Describe the maintenance process put in place by the data partner for the tool updates.", style="Highlight") %>%
+    body_add_break()
 
-      body_add_par("Have the following checks been performed?", style = "Normal") %>%
-      body_add_par("[ ] ATLAS cohort creation, e.g. Type 2 Diabetes", style = "Normal") %>%
-      body_add_par("[ ] Check of Achilles results", style = "Normal") %>%
-      body_add_par("Comments:", style = "Normal") %>%
+  doc <-  doc %>%
+    body_add_par('Checklist', style = "heading 1") %>%
 
-      body_add_par("Check that all the items mentioned below are shared with EHDEN in addition to this inspection report. If items cannot be shared, add an explanation in the comments section.", style = "Normal") %>%
-      body_add_par("[ ] ETL Documentation", style = "Normal") %>%
-      body_add_par("[ ] ETL Code", style = "Normal") %>%
-      body_add_par("[ ] DQD dashboard json file", style = "Normal") %>%
-      body_add_par("[ ] White Rabbit output", style = "Normal") %>%
-      body_add_par("[ ] CdmInspection results.zip ", style = "Normal") %>%
-      body_add_par("Comments:", style = "Normal")
+    body_add_par("Have the following checks been performed?", style = "Normal") %>%
+    body_add_par("[ ] ATLAS cohort creation, e.g. Type 2 Diabetes", style = "Normal") %>%
+    body_add_par("[ ] Check of Achilles results", style = "Normal") %>%
+    body_add_par("Comments:", style = "Normal") %>%
+
+    body_add_par("Check that all the items mentioned below are shared with EHDEN in addition to this inspection report. If items cannot be shared, add an explanation in the comments section.", style = "Normal") %>%
+    body_add_par("[ ] ETL Documentation", style = "Normal") %>%
+    body_add_par("[ ] ETL Code", style = "Normal") %>%
+    body_add_par("[ ] DQD dashboard json file", style = "Normal") %>%
+    body_add_par("[ ] White Rabbit output", style = "Normal") %>%
+    body_add_par("[ ] CdmInspection results.zip ", style = "Normal") %>%
+    body_add_par("Comments:", style = "Normal")
 
 
   ## save the doc as a word file
