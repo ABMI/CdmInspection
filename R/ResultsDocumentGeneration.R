@@ -209,12 +209,13 @@ generateResultsDocument<- function(results, outputFolder, docTemplate="EHDEN", a
     doc<-doc %>%
       officer::body_add_par(value = "Source to concept map", style = "heading 2") %>%
       officer::body_add_par("If you did not use the source_to_concept_map table in the ETL the table below will be empty. In that case provide your custom mappings in an Excel file.", style="Highlight") %>%
-      officer::body_add_par("Table 19. Source to concept map breakdown") %>%
-      my_body_add_table(value = vocabResults$sourceConceptFrequency$result, style = "EHDEN") %>%
+      officer::body_add_par("Table 19. Source to concept map breakdown")
+    try({
+    doc<-doc %>% my_body_add_table(value = vocabResults$sourceConceptFrequency$result, style = "EHDEN") %>%
       officer::body_add_par(" ") %>%
       officer::body_add_par(paste("Query executed in ",sprintf("%.2f", vocabResults$sourceConceptFrequency$duration),"secs")) %>%
       officer::body_add_par("Note that the full source_to_concept_map table is added in the results.zip", style="Highlight")
-
+    })
   } else {
     doc<-doc %>%
     officer::body_add_par("Vocabulary checks have not been executed, runVocabularyChecks = FALSE?", style="Highlight") %>%
