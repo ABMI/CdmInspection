@@ -177,10 +177,19 @@ generateResultsDocument<- function(results, outputFolder, docTemplate="EHDEN", a
       officer::body_add_par(paste("Query executed in ",sprintf("%.2f", vocabResults$mappingCompleteness$duration),"secs")) %>%
       officer::body_add_break()
 
+    doc<-doc %>%
+      officer::body_add_par(value = "Mapping Standard", style = "heading 2") %>%
+      officer::body_add_par("Table 6. Standard/Classification/Non-standard concepts in Mapped Codes") %>%
+      my_body_add_table(value = vocabResults$mappingStandard$result, style = "EHDEN") %>%
+      officer::body_add_par(" ") %>%
+      officer::body_add_par(paste("Query executed in ",sprintf("%.2f", vocabResults$mappingStandard$duration),"secs")) %>%
+      officer::body_add_break()
+
+
     ## add Drug Level Mappings
     doc<-doc %>%
       officer::body_add_par(value = "Drug Mappings", style = "heading 2") %>%
-      officer::body_add_par("Table 6. The level of the drug mappings") %>%
+      officer::body_add_par("Table 7. The level of the drug mappings") %>%
       my_body_add_table(value = vocabResults$drugMapping$result, style = "EHDEN") %>%
       officer::body_add_par(" ") %>%
       officer::body_add_par(paste("Query executed in ",sprintf("%.2f", vocabResults$drugMapping$duration),"secs"))
@@ -188,28 +197,28 @@ generateResultsDocument<- function(results, outputFolder, docTemplate="EHDEN", a
     ## add Top 25 missing mappings
     doc<-doc %>%
       officer::body_add_par(value = "Unmapped Codes", style = "heading 2")
-    my_unmapped_section(doc, vocabResults$unmappedDrugs, 7, "drugs", smallCellCount)
-    my_unmapped_section(doc, vocabResults$unmappedConditions, 8, "conditions", smallCellCount)
-    my_unmapped_section(doc, vocabResults$unmappedMeasurements, 9, "measurements", smallCellCount)
-    my_unmapped_section(doc, vocabResults$unmappedObservations, 10, "observations",smallCellCount)
-    my_unmapped_section(doc, vocabResults$unmappedProcedures, 11, "procedures", smallCellCount)
-    my_unmapped_section(doc, vocabResults$unmappedDevices, 12, "devices", smallCellCount)
+    my_unmapped_section(doc, vocabResults$unmappedDrugs, 8, "drugs", smallCellCount)
+    my_unmapped_section(doc, vocabResults$unmappedConditions, 9, "conditions", smallCellCount)
+    my_unmapped_section(doc, vocabResults$unmappedMeasurements, 10, "measurements", smallCellCount)
+    my_unmapped_section(doc, vocabResults$unmappedObservations, 11, "observations",smallCellCount)
+    my_unmapped_section(doc, vocabResults$unmappedProcedures, 12, "procedures", smallCellCount)
+    my_unmapped_section(doc, vocabResults$unmappedDevices, 13, "devices", smallCellCount)
 
     ## add top 25 mapped codes
     doc<-doc %>%
       officer::body_add_par(value = "Mapped Codes", style = "heading 2")
-    my_mapped_section(doc, vocabResults$mappedDrugs, 13, "drugs", smallCellCount)
-    my_mapped_section(doc, vocabResults$mappedConditions, 14, "conditions", smallCellCount)
-    my_mapped_section(doc, vocabResults$mappedMeasurements, 15, "measurements", smallCellCount)
-    my_mapped_section(doc, vocabResults$mappedObservations, 16, "observations", smallCellCount)
-    my_mapped_section(doc, vocabResults$mappedProcedures, 17, "procedures", smallCellCount)
-    my_mapped_section(doc, vocabResults$mappedDevices, 18, "devices", smallCellCount)
+    my_mapped_section(doc, vocabResults$mappedDrugs, 14, "drugs", smallCellCount)
+    my_mapped_section(doc, vocabResults$mappedConditions, 15, "conditions", smallCellCount)
+    my_mapped_section(doc, vocabResults$mappedMeasurements, 16, "measurements", smallCellCount)
+    my_mapped_section(doc, vocabResults$mappedObservations, 17, "observations", smallCellCount)
+    my_mapped_section(doc, vocabResults$mappedProcedures, 18, "procedures", smallCellCount)
+    my_mapped_section(doc, vocabResults$mappedDevices, 19, "devices", smallCellCount)
 
     ## add source_to_concept_map breakdown
     doc<-doc %>%
       officer::body_add_par(value = "Source to concept map", style = "heading 2") %>%
       officer::body_add_par("If you did not use the source_to_concept_map table in the ETL the table below will be empty. In that case provide your custom mappings in an Excel file.", style="Highlight") %>%
-      officer::body_add_par("Table 19. Source to concept map breakdown")
+      officer::body_add_par("Table 20. Source to concept map breakdown")
     try({
       doc<-doc %>% my_body_add_table(value = vocabResults$sourceConceptFrequency$result, style = "EHDEN") %>%
         officer::body_add_par(" ") %>%
@@ -236,7 +245,7 @@ generateResultsDocument<- function(results, outputFolder, docTemplate="EHDEN", a
     t_cdmSource <- cbind(field, t_cdmSource)
     doc<-doc %>%
       officer::body_add_par(value = "CDM Source Table", style = "heading 2") %>%
-      officer::body_add_par("Table 20. cdm_source table content") %>%
+      officer::body_add_par("Table 21. cdm_source table content") %>%
       my_body_add_table(value =t_cdmSource, style = "EHDEN")
   }
 
@@ -244,7 +253,7 @@ generateResultsDocument<- function(results, outputFolder, docTemplate="EHDEN", a
     #installed packages
     doc<-doc %>%
       officer::body_add_par(value = "HADES packages", style = "heading 2") %>%
-      officer::body_add_par("Table 21. Versions of all installed HADES R packages") %>%
+      officer::body_add_par("Table 22. Versions of all installed HADES R packages") %>%
       my_body_add_table(value = results$hadesPackageVersions, style = "EHDEN")
 
     if (results$missingPackage=="") {
@@ -275,7 +284,7 @@ generateResultsDocument<- function(results, outputFolder, docTemplate="EHDEN", a
 
     doc<-doc %>%
       officer::body_add_par(value = "Achilles Query Performance", style = "heading 2") %>%
-      officer::body_add_par("Table 22. Execution time of queries of the Achilles R-Package")
+      officer::body_add_par("Table 23. Execution time of queries of the Achilles R-Package")
 
     if (!is.null(results$performanceResults$achillesTiming$result)) {
       doc<-doc %>%
@@ -314,7 +323,7 @@ generateResultsDocument<- function(results, outputFolder, docTemplate="EHDEN", a
 
   doc <- doc %>%
     officer::body_add_par(value = 'Achilles Heel Result', style = 'heading 2') %>%
-    officer::body_add_par("Table 23. Achilles Heel Result")
+    officer::body_add_par("Table 24. Achilles Heel Result")
   try(df_t3 <- results$performanceResults$achillesHeelResults)
   if(!is.null(df_t3$result)){
     heelResult <- gsub(":.*", "", df_t3$result$ACHILLES_HEEL_WARNING) %>% table() %>% as.data.frame()
@@ -329,7 +338,7 @@ generateResultsDocument<- function(results, outputFolder, docTemplate="EHDEN", a
     colnames(df_t3$result) <- c("analysisId", "ruleId", "ACHILLES_HEEL_warning", "count")
 
     doc<-doc %>%
-      officer::body_add_par("Table 24. Detailed Achilles Heel Result") %>%
+      officer::body_add_par("Table 25. Detailed Achilles Heel Result") %>%
       my_body_add_table(value =df_t3$result, style = "EHDEN") %>%
       officer::body_add_par(" ") %>%
       officer::body_add_par(paste("Query executed in ",sprintf("%.2f", results$performanceResults$achillesHeelResults$duration)," secs")) %>%
