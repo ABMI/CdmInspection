@@ -65,7 +65,8 @@ library(CdmInspection)
 
 # Optional: specify where the temporary files (used by the ff package) will be created:
 fftempdir <- if (Sys.getenv("FFTEMP_DIR") == "") "~/fftemp" else Sys.getenv("FFTEMP_DIR")
-options(fftempdir = fftempdir)
+# options(fftempdir = fftempdir)
+options(andromedaTempFolder = fftempdir)
 
 # Details for connecting to the server:
 dbms = Sys.getenv("DBMS")

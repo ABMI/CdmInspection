@@ -194,15 +194,18 @@ cdmInspection <- function (connectionDetails,
 
     }
 
+    cohortCounts <- NULL
     if (runCreateCohorts) {
-      ParallelLogger::logInfo(paste0("Creating sample cohorts"))
-      cohortCounts <-  CdmInspection::createCohorts(connectionDetails = connectionDetails,
-                                                    cdmDatabaseSchema = cdmDatabaseSchema,
-                                                    vocabularyDatabaseSchema = vocabDatabaseSchema,
-                                                    cohortDatabaseSchema = cohortDatabaseSchema,
-                                                    cohortTable = cohortTable,
-                                                    oracleTempSchema = oracleTempSchema,
-                                                    outputFolder = outputFolder)
+      tryCatch({
+        ParallelLogger::logInfo(paste0("Creating sample cohorts"))
+        cohortCounts <-  CdmInspection::createCohorts(connection = connectionDetails,
+                                                      cdmDatabaseSchema = cdmDatabaseSchema,
+                                                      vocabularyDatabaseSchema = vocabDatabaseSchema,
+                                                      cohortDatabaseSchema = cohortDatabaseSchema,
+                                                      cohortTable = cohortTable,
+                                                      oracleTempSchema = oracleTempSchema,
+                                                      outputFolder = outputFolder)
+      })
     }
 
     webAPIversion <- "unknown"

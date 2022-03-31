@@ -20,7 +20,7 @@
 #' This function will create the exposure and outcome cohorts following the definitions included in
 #' this package.
 #'
-#' @param connectionDetails    An object of type \code{connection} as created using the
+#' @param connection    An object of type \code{connection} as created using the
 #'                             \code{\link[DatabaseConnector]{createConnectionDetails}} function in the
 #'                             DatabaseConnector package.
 #' @param cdmDatabaseSchema    Schema name where your patient-level data in OMOP CDM format resides.
@@ -32,7 +32,7 @@
 #' @param cohortTable          The name of the table that will be created in the work database schema.
 #'                             This table will hold the exposure and outcome cohorts used in this
 #'                             study.
-#' @param tempEmulationSchema     Should be used in Oracle to specify a schema where the user has write
+#' @param oracleTempSchema     Should be used in Oracle to specify a schema where the user has write
 #'                             privileges for storing temporary tables.
 #' @param outputFolder         Name of local folder to place results; make sure to use forward slashes
 #'                             (/)
@@ -40,7 +40,7 @@
 #' @export
 
 
-createCohorts <- function(connectionDetails,
+createCohorts <- function(connection,
                           cdmDatabaseSchema,
                           vocabularyDatabaseSchema = cdmDatabaseSchema,
                           cohortDatabaseSchema,
@@ -50,13 +50,13 @@ createCohorts <- function(connectionDetails,
   if (!file.exists(outputFolder))
     dir.create(outputFolder)
 
-  conn = DatabaseConnector::connect(connectionDetails)
+  conn <- DatabaseConnector::connect(connection)
 
   # Create study cohort table structure:
-
   sql <- SqlRender::loadRenderTranslateSql(sqlFilename = "CreateCohortTable.sql",
                                            packageName = "CdmInspection",
                                            dbms = attr(conn, "dbms"),
+                                           oracleTempSchema = oracleTempSchema,
                                            cohort_database_schema = cohortDatabaseSchema,
                                            cohort_table = cohortTable)
   DatabaseConnector::executeSql(conn, sql, progressBar = FALSE, reportOverallTime = FALSE)
@@ -67,14 +67,13 @@ createCohorts <- function(connectionDetails,
   pathToCsv <- system.file("settings", "CohortsToCreate.csv", package = "CdmInspection")
   cohortsToCreate <- read.csv(pathToCsv)
   duration <- data.frame(cohortName = cohortsToCreate$name, executionTime = NA)
-
   for (i in 1:nrow(cohortsToCreate)) {
     start_time <- Sys.time()
     writeLines(paste("Creating cohort:", cohortsToCreate$name[i]))
     sql <- SqlRender::loadRenderTranslateSql(sqlFilename = paste0(cohortsToCreate$name[i], ".sql"),
                                              packageName = "CdmInspection",
-                                             dbms = connectionDetails$dbms,
-                                             tempEmulationSchema = tempEmulationSchema,
+                                             dbms = attr(conn, "dbms"),
+                                             oracleTempSchema = oracleTempSchema,
                                              cdm_database_schema = cdmDatabaseSchema,
                                              vocabulary_database_schema = vocabularyDatabaseSchema,
 
@@ -98,7 +97,7 @@ createCohorts <- function(connectionDetails,
                            cohort_database_schema = cohortDatabaseSchema,
                            cdm_database_schema = cdmDatabaseSchema,
                            cohort_table = cohortTable)
-  sql <- SqlRender::translate(sql, targetDialect = connectionDetails$dbms)
+  sql <- SqlRender::translate(sql, targetDialect = attr(conn, "dbms"))
   counts <- DatabaseConnector::querySql(conn, sql)
   names(counts) <- c("cohortDefinitionId", "recordCount", "personCount", "totalPersonCount", "personProportion")
   counts <- merge(data.frame(cohortDefinitionId = cohortsToCreate$cohortId,
