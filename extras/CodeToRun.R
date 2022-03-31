@@ -95,6 +95,9 @@ cdmDatabaseSchema <- "<your_cdm_schema>"
 resultsDatabaseSchema <- "<your_results_schema>" #Make sure the Achilles results are in this schema!
 vocabDatabaseSchema <- "<your_vocab_schema>"
 
+cohortDatabaseSchema <- "<your_cohort_schema>"
+cohortTable <- "CdmInspectionCohort"
+
 # Url to check the version of your local Atlas
 baseUrl <- "<your_baseUrl>" # example: "http://atlas-demo.ohdsi.org/WebAPI"
 
@@ -117,12 +120,15 @@ results<-cdmInspection(connectionDetails,
                 cdmDatabaseSchema = cdmDatabaseSchema,
                 resultsDatabaseSchema = resultsDatabaseSchema,
                 vocabDatabaseSchema = vocabDatabaseSchema,
+                cohortDatabaseSchema = cohortDatabaseSchema,
+                cohortTable = cohortTable,
                 oracleTempSchema = oracleTempSchema,
                 databaseId = databaseId,
                 databaseName = databaseName,
                 runVocabularyChecks = TRUE,
                 runDataTablesChecks = TRUE,
                 runPerformanceChecks = TRUE,
+                runCreateCohorts = TRUE,
                 runWebAPIChecks = TRUE,
                 smallCellCount = smallCellCount,
                 baseUrl = baseUrl,
@@ -132,5 +138,7 @@ results<-cdmInspection(connectionDetails,
 
 results <- readRDS(paste0(outputFolder, '/inspection_results.rds'))
 
-generateResultsDocument(results,outputFolder, authors=authors, databaseDescription = databaseDescription, databaseName = databaseName, databaseId = databaseId, smallCellCount = smallCellCount)
+generateResultsDocument(results,outputFolder, docTemplate="OHDSI",
+                        authors=authors, databaseDescription = databaseDescription,
+                        databaseName = databaseName, databaseId = databaseId, smallCellCount = smallCellCount)
 

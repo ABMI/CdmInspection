@@ -2,6 +2,7 @@
 
 export(bundleResults)
 export(cdmInspection)
+export(createCohorts)
 export(dataTablesChecks)
 export(generateResultsDocument)
 export(performanceChecks)

@@ -31,12 +31,14 @@
 #' @param connectionDetails                An R object of type \code{connectionDetails} created using the function \code{createConnectionDetails} in the \code{DatabaseConnector} package.
 #' @param cdmDatabaseSchema    	           Fully qualified name of database schema that contains OMOP CDM schema.
 #'                                         On SQL Server, this should specifiy both the database and the schema, so for example, on SQL Server, 'cdm_instance.dbo'.
+#' @param cohortDatabaseSchema             Fully qualified name of database schema that contains cohort tables.
 #' @param resultsDatabaseSchema		         Fully qualified name of database schema that we can write final results to. Default is cdmDatabaseSchema.
 #'                                         On SQL Server, this should specifiy both the database and the schema, so for example, on SQL Server, 'cdm_results.dbo'.
 #' @param scratchDatabaseSchema            Fully qualified name of database schema that we can write temporary tables to. Default is resultsDatabaseSchema.
 #'                                         On SQL Server, this should specifiy both the database and the schema, so for example, on SQL Server, 'cdm_scratch.dbo'.
 #' @param vocabDatabaseSchema		           String name of database schema that contains OMOP Vocabulary. Default is cdmDatabaseSchema. On SQL Server, this should specifiy both the database and the schema, so for example 'results.dbo'.
 #' @param oracleTempSchema                 For Oracle only: the name of the database schema where you want all temporary tables to be managed. Requires create/insert permissions to this database.
+#' @param cohortTable                      Cohort table that contains extracted cohorts from your CDM database.
 #' @param databaseId                       ID of your database, this will be used as subfolder for the results.
 #' @param databaseName		                 String name of the database name. If blank, CDM_SOURCE table will be queried to try to obtain this.
 #' @param databaseDescription              Provide a short description of the database.
@@ -57,6 +59,8 @@ cdmInspection <- function (connectionDetails,
                              resultsDatabaseSchema = cdmDatabaseSchema,
                              scratchDatabaseSchema = resultsDatabaseSchema,
                              vocabDatabaseSchema = cdmDatabaseSchema,
+                             cohortDatabaseSchema = cohortDatabaseSchema,
+                             cohortTable = cohortTable,
                              oracleTempSchema = resultsDatabaseSchema,
                              databaseName = "",
                              databaseId = "",
@@ -66,6 +70,7 @@ cdmInspection <- function (connectionDetails,
                              runVocabularyChecks = TRUE,
                              runDataTablesChecks = TRUE,
                              runPerformanceChecks = TRUE,
+                             runCreateCohorts = TRUE,
                              runWebAPIChecks = TRUE,
                              baseUrl,
                              sqlOnly = FALSE,
@@ -189,6 +194,17 @@ cdmInspection <- function (connectionDetails,
 
     }
 
+    if (runCreateCohorts) {
+      ParallelLogger::logInfo(paste0("Creating sample cohorts"))
+      cohortCounts <-  CdmInspection::createCohorts(connectionDetails = connectionDetails,
+                                                    cdmDatabaseSchema = cdmDatabaseSchema,
+                                                    vocabularyDatabaseSchema = vocabDatabaseSchema,
+                                                    cohortDatabaseSchema = cohortDatabaseSchema,
+                                                    cohortTable = cohortTable,
+                                                    oracleTempSchema = oracleTempSchema,
+                                                    outputFolder = outputFolder)
+    }
+
     webAPIversion <- "unknown"
     if (runWebAPIChecks){
       ParallelLogger::logInfo(paste0("Running WebAPIChecks"))
@@ -221,6 +237,7 @@ cdmInspection <- function (connectionDetails,
                   hadesPackageVersions = hadesPackageVersions,
                   missingPackages = missingPackages,
                   performanceResults = performanceResults,
+                  cohortCounts = cohortCounts,
                   sys_details= sys_details,
                   webAPIversion = webAPIversion,
                   cdmSource = cdmSource,

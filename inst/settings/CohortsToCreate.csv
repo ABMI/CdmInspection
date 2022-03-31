@@ -1,0 +1,6 @@
+atlasId,atlasName,cohortId,name
+1,T2DM_diagnosis_cdmInspection,1,T2DM_diagnosis_cdmInspection
+2,T2DM_diagnosis_drug_metformin_cdmInspection,2,T2DM_diagnosis_drug_metformin_cdmInspection
+3,HT_diagnosis_cdmInspection,3,HT_diagnosis_cdmInspection
+4,HT_diagnosis_drug_ACEIARB_cdmInspection,4,HT_diagnosis_drug_ACEIARB_cdmInspection
+5,MACE_cdmInspection,5,MACE_cdmInspection

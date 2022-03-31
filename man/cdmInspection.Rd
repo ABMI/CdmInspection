@@ -10,6 +10,8 @@ cdmInspection(
   resultsDatabaseSchema = cdmDatabaseSchema,
   scratchDatabaseSchema = resultsDatabaseSchema,
   vocabDatabaseSchema = cdmDatabaseSchema,
+  cohortDatabaseSchema = cohortDatabaseSchema,
+  cohortTable = cohortTable,
   oracleTempSchema = resultsDatabaseSchema,
   databaseName = "",
   databaseId = "",
@@ -19,6 +21,7 @@ cdmInspection(
   runVocabularyChecks = TRUE,
   runDataTablesChecks = TRUE,
   runPerformanceChecks = TRUE,
+  createCohorts = TRUE,
   runWebAPIChecks = TRUE,
   baseUrl,
   sqlOnly = FALSE,
@@ -39,6 +42,10 @@ On SQL Server, this should specifiy both the database and the schema, so for exa
 On SQL Server, this should specifiy both the database and the schema, so for example, on SQL Server, 'cdm_scratch.dbo'.}
 
 \item{vocabDatabaseSchema}{String name of database schema that contains OMOP Vocabulary. Default is cdmDatabaseSchema. On SQL Server, this should specifiy both the database and the schema, so for example 'results.dbo'.}
+
+\item{cohortDatabaseSchema}{Fully qualified name of database schema that contains cohort tables.}
+
+\item{cohortTable}{Cohort table that contains extracted cohorts from your CDM database.}
 
 \item{oracleTempSchema}{For Oracle only: the name of the database schema where you want all temporary tables to be managed. Requires create/insert permissions to this database.}
 

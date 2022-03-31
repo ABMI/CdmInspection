@@ -19,6 +19,9 @@ generateResultsDocument<- function(results, outputFolder, docTemplate="EHDEN", a
   if (docTemplate=="EHDEN"){
     docTemplate <- system.file("templates", "Template-EHDEN.docx", package="CdmInspection")
     logo <- system.file("templates", "pics", "ehden-logo.png", package="CdmInspection")
+  } else if (docTemplate == 'OHDSI'){
+    docTemplate <- system.file("templates", "Template-OHDSI.docx", package="CdmInspection")
+    logo <- system.file("templates", "pics", "ohdsi-logo.png", package="CdmInspection")
   }
 
   ## open a new doc from the doctemplate
@@ -347,6 +350,16 @@ generateResultsDocument<- function(results, outputFolder, docTemplate="EHDEN", a
     doc<-doc %>%
       officer::body_add_par("Query did not return results ", style="Highlight")
   }
+
+  try(df_t10 <- results$cohortCounts)
+  if(!is.null(df_t10)){
+    colnames(df_t10) <- c("Cohort_definition_id", "Cohort_name", "Records", "Patients", "Total number of person", "Person ratio (%)", "Duration (sec)")
+
+    doc<-doc %>%
+      officer::body_add_par(value = "Generating sample cohorts", style = "heading 2") %>%
+      officer::body_add_par("Table 26. Results of generating sample cohorts") %>%
+      my_body_add_table(value = df_t10, style = "EHDEN")
+    }
 
   doc <-  doc %>%
     body_add_par('Maintenance', style = "heading 1") %>%
