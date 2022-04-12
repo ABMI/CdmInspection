@@ -21,7 +21,7 @@ cdmInspection(
   runVocabularyChecks = TRUE,
   runDataTablesChecks = TRUE,
   runPerformanceChecks = TRUE,
-  createCohorts = TRUE,
+  runCreateCohorts = TRUE,
   runWebAPIChecks = TRUE,
   baseUrl,
   sqlOnly = FALSE,
