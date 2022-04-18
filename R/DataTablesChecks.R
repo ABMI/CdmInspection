@@ -67,6 +67,7 @@ dataTablesChecks <- function (connectionDetails,
       tryCatch({dataTablesCounts_device_exposure <- executeQuery(outputFolder,"data_tables_count_device_exposure.sql", "Data tables - device count query executed successfully", connectionDetails, sqlOnly, cdmDatabaseSchema, vocabDatabaseSchema, resultsDatabaseSchema)})
       tryCatch({dataTablesCounts_dose_era <- executeQuery(outputFolder,"data_tables_count_dose_era.sql", "Data tables - dose_era count query executed successfully", connectionDetails, sqlOnly, cdmDatabaseSchema, vocabDatabaseSchema, resultsDatabaseSchema)})
       tryCatch({dataTablesCounts_drug_era <- executeQuery(outputFolder,"data_tables_count_drug_era.sql", "Data tables - drug_era count query executed successfully", connectionDetails, sqlOnly, cdmDatabaseSchema, vocabDatabaseSchema, resultsDatabaseSchema)})
+      tryCatch({dataTablesCounts_drug_exposure <- executeQuery(outputFolder,"data_tables_count_drug_exposure.sql", "Data tables - drug_exposure count query executed successfully", connectionDetails, sqlOnly, cdmDatabaseSchema, vocabDatabaseSchema, resultsDatabaseSchema)})
       tryCatch({dataTablesCounts_location <- executeQuery(outputFolder,"data_tables_count_location.sql", "Data tables - location count query executed successfully", connectionDetails, sqlOnly, cdmDatabaseSchema, vocabDatabaseSchema, resultsDatabaseSchema)})
       tryCatch({dataTablesCounts_measurement <- executeQuery(outputFolder,"data_tables_count_measurement.sql", "Data tables - measurement count query executed successfully", connectionDetails, sqlOnly, cdmDatabaseSchema, vocabDatabaseSchema, resultsDatabaseSchema)})
       tryCatch({dataTablesCounts_note <- executeQuery(outputFolder,"data_tables_count_note.sql", "Data tables - note count query executed successfully", connectionDetails, sqlOnly, cdmDatabaseSchema, vocabDatabaseSchema, resultsDatabaseSchema)})
@@ -82,14 +83,14 @@ dataTablesChecks <- function (connectionDetails,
       dataTablesCounts <- list()
       dataTablesCounts[[1]] <- rbind(dataTablesCounts_person[[1]], dataTablesCounts_care_site[[1]], dataTablesCounts_condition_era[[1]],
                                      dataTablesCounts_condition_occurrence[[1]], dataTablesCounts_cost[[1]], dataTablesCounts_death[[1]],
-                                     dataTablesCounts_device_exposure[[1]], dataTablesCounts_dose_era[[1]], dataTablesCounts_drug_era[[1]],
+                                     dataTablesCounts_device_exposure[[1]], dataTablesCounts_dose_era[[1]], dataTablesCounts_drug_era[[1]], dataTablesCounts_drug_exposure[[1]],
                                      dataTablesCounts_location[[1]], dataTablesCounts_measurement[[1]], dataTablesCounts_note[[1]],
                                      dataTablesCounts_observation[[1]], dataTablesCounts_observation_period[[1]], dataTablesCounts_payer_plan_period[[1]],
                                      dataTablesCounts_procedure_occurrence[[1]], dataTablesCounts_provider[[1]], dataTablesCounts_specimen[[1]],
                                      dataTablesCounts_visit_details[[1]], dataTablesCounts_visit_occurrence[[1]])
       dataTablesCounts[[2]] <- sum(dataTablesCounts_person[[2]], dataTablesCounts_care_site[[2]], dataTablesCounts_condition_era[[2]],
                                    dataTablesCounts_condition_occurrence[[2]], dataTablesCounts_cost[[2]], dataTablesCounts_death[[2]],
-                                   dataTablesCounts_device_exposure[[2]], dataTablesCounts_dose_era[[2]], dataTablesCounts_drug_era[[2]],
+                                   dataTablesCounts_device_exposure[[2]], dataTablesCounts_dose_era[[2]], dataTablesCounts_drug_era[[2]], dataTablesCounts_drug_exposure[[2]],
                                    dataTablesCounts_location[[2]], dataTablesCounts_measurement[[2]], dataTablesCounts_note[[2]],
                                    dataTablesCounts_observation[[2]], dataTablesCounts_observation_period[[2]], dataTablesCounts_payer_plan_period[[2]],
                                    dataTablesCounts_procedure_occurrence[[2]], dataTablesCounts_provider[[2]], dataTablesCounts_specimen[[2]],
