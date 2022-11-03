@@ -22,6 +22,9 @@ generateResultsDocument<- function(results, outputFolder, docTemplate="EHDEN", a
   } else if (docTemplate == 'OHDSI'){
     docTemplate <- system.file("templates", "Template-OHDSI.docx", package="CdmInspection")
     logo <- system.file("templates", "pics", "ohdsi-logo.png", package="CdmInspection")
+  } else if (docTemplate == 'FeederNet'){
+    docTemplate <- system.file("templates", "Template-FEEDERNET.docx", package="CdmInspection")
+    logo <- system.file("templates", "pics", "feedernet-logo.png", package="CdmInspection")
   }
 
   ## open a new doc from the doctemplate

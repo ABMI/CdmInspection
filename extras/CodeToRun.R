@@ -79,6 +79,11 @@ port = Sys.getenv("DB_PORT")
 # if specified, the server, port fields are ignored. If user and password are not specified, they are assumed to already be included in the connection string.
 connectionString = if (Sys.getenv("CONNECTION_STRING") == "") NULL else Sys.getenv("CONNECTION_STRING")
 
+# jdbc driver directory
+path = './jdbcDrivers'
+# if you have jdbc driver in the path already, please make a line below as comment
+DatabaseConnector::downloadJdbcDrivers(dbms, pathToDriver = path)
+
 # Author details
 authors <-"<your_name>" # used on the title page
 
@@ -115,7 +120,7 @@ connectionDetails <- DatabaseConnector::createConnectionDetails(dbms = dbms,
                                                                 server = server,
                                                                 user = user,
                                                                 password = password,
-                                                                connectionString = connectionString)
+                                                                pathToDriver = path)
 
 results<-cdmInspection(connectionDetails,
                 cdmDatabaseSchema = cdmDatabaseSchema,
